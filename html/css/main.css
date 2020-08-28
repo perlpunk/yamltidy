@@ -1,0 +1,30 @@
+body {
+    font-family: Arial;
+}
+table.highlight {
+    border: 1px solid #bbb;
+    border-collapse: collapse;
+    box-shadow: 2px 2px 4px 1px grey;
+}
+table.highlight tr th, table.highlight tr td {
+    border: 1px solid #bbb;
+    background-color: white;
+    padding: 2px 3px 2px 3px;
+
+}
+table.highlight tr td.yaml {
+    max-width: 18em;
+    overflow-x: auto;
+    vertical-align: top;
+}
+pre {
+    background-color: white;
+    padding: 2px;
+}
+pre.error {
+    border: 1px solid red;
+}
+pre.diff {
+    border: 1px solid #ff9900;
+}
+

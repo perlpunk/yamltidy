@@ -1,0 +1,53 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use 5.010;
+use YAML::Tidy;
+use Getopt::Long;
+use Encode;
+
+GetOptions(
+    'verbose|v' => \my $verbose,
+    'indent=i' => \my $indent,
+    'inplace' => \my $inplace,
+    'debug' => \my $debug,
+    'partial' => \my $partial,
+) or die("Error in command line arguments\n");
+
+my ($file) = @ARGV;
+my $yaml;
+if ($file eq '-') {
+    $yaml = do { local $/; <STDIN> };
+}
+else {
+    open my $fh, '<:encoding(UTF-8)', $file or die $!;
+    $yaml = do { local $/; <$fh> };
+    close $fh;
+}
+
+#say ">>$yaml<<";
+my $yt = YAML::Tidy->new(
+    verbose => $verbose,
+    indent => $indent,
+    partial => $partial,
+);
+    if ($debug) {
+        print encode_utf8 $yt->highlight($yaml);
+    }
+    else {
+#        print encode_utf8 $yaml;
+    }
+my $out = $yt->tidy($yaml);
+if ($inplace) {
+    open my $fh, '>:encoding(UTF-8)', $file or die $!;
+    print $fh $out;
+    close $fh;
+}
+else {
+    if ($debug) {
+        print encode_utf8 $yt->highlight($out);
+    }
+    else {
+        print encode_utf8 $out;
+    }
+}

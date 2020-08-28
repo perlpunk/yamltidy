@@ -1,0 +1,44 @@
+.PHONY: update-yts delete-yts cover clean-cover test testp testv
+
+yts:
+	git clone git@github.com:yaml/yaml-test-suite --depth 1 -b data-2020-08-01 yts
+
+reclone-yts: delete-yts yts
+
+delete-yts:
+	rm -rf yts
+
+cover:
+	HARNESS_PERL_SWITCHES="-MDevel::Cover=+ignore,local,+ignore,^t/,+ignore,^xt/" prove -lr t
+	cover
+
+clean-cover:
+	rm -r cover_db
+
+test:
+	prove -lr t
+
+testp:
+	prove -lr -j9 t
+
+testv:
+	prove -lrv t
+
+highlight:
+	perl -Ilib utils/generate.pl
+	perl -Ilib utils/highlight.pl
+
+#gh-pages:
+#	git worktree add gh-pages gh-pages
+#
+#gh-pages-status: gh-pages
+#	cd gh-pages && git status
+#
+#gh-pages-diff: gh-pages
+#	cd gh-pages && git diff
+#
+#gh-pages-commit: gh-pages
+#	cd gh-pages && git add . && git commit -m "Generate HTML"
+#
+#gh-pages-push: gh-pages
+#	cd gh-pages && git push
