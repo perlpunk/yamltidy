@@ -1,7 +1,7 @@
 .PHONY: update-yts delete-yts cover clean-cover test testp testv
 
 yts:
-	git clone git@github.com:yaml/yaml-test-suite --depth 1 -b data-2020-08-01 yts
+	git clone https://github.com/yaml/yaml-test-suite --depth 1 -b data-2020-08-01 yts
 
 reclone-yts: delete-yts yts
 

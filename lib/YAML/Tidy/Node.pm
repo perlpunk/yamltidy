@@ -1,18 +1,17 @@
 use strict;
 use warnings;
-use 5.010;
+use v5.20;
+use experimental qw/ signatures /;
 package YAML::Tidy::Node;
 
-sub new {
-    my ($class, %args) = @_;
+sub new($class, %args) {
     my $self = {
         %args,
     };
     return bless $self, $class;
 }
 
-sub pre {
-    my ($self, $node) = @_;
+sub pre($self, $node) {
     my $index = $node->{index} - 1;
     my $end;
     if ($index < 1) {
@@ -34,9 +33,7 @@ use base 'YAML::Tidy::Node';
 
 sub is_collection { 1 }
 
-sub indent {
-    my ($self) = @_;
-
+sub indent($self) {
     my $firstevent = $self->{start};
     if ($firstevent->{name} eq 'document_start_event') {
         return 0;
@@ -46,31 +43,26 @@ sub indent {
     return $startcol;
 }
 
-sub end {
-    my ($self) = @_;
+sub end($self) {
     return $self->{end}->{end};
 }
 
-sub start {
-    my ($self) = @_;
+sub start($self) {
     return $self->{start}->{start};
 }
 
-sub line {
-    my ($self) = @_;
+sub line($self) {
 
     my $contentstart = $self->contentstart;
     return $contentstart->{line};
 }
 
-sub contentstart {
-    my ($self) = @_;
+sub contentstart($self) {
     my $firstevent = $self->{start};
     return $firstevent->{end};
 }
 
-sub fix_node_indent {
-    my ($self, $fix) = @_;
+sub fix_node_indent($self, $fix) {
     for my $e (@$self{qw/ start end /}) {
         for my $pos (@$e{qw/ start end /}) {
             $pos->{column} += $fix;
@@ -96,44 +88,37 @@ use base 'YAML::Tidy::Node';
 
 sub is_collection { 0 }
 
-sub indent {
-    my ($self) = @_;
+sub indent($self) {
 
     return $self->{start}->{column};
 }
 
-sub start {
-    my ($self) = @_;
+sub start($self) {
     return $self->{start};
 }
 
-sub end {
-    my ($self) = @_;
+sub end($self) {
     return $self->{end};
 }
 
 
-sub line {
-    my ($self) = @_;
+sub line($self) {
     my $contentstart = $self->contentstart;
     return $contentstart->{line};
 }
 
-sub contentstart {
-    my ($self) = @_;
+sub contentstart($self) {
     return $self->{start};
 }
 
-sub multiline {
-    my ($self) = @_;
+sub multiline($self) {
     if ($self->{start}->{line} < $self->{end}->{line}) {
         return 1;
     }
     return 0;
 }
 
-sub empty_scalar {
-    my ($self) = @_;
+sub empty_scalar($self) {
     my ($start, $end) = @$self{qw/ start end /};
     if ($start->{line} == $end->{line} and $start->{column} == $end->{column}) {
         return 1;
@@ -142,8 +127,7 @@ sub empty_scalar {
 }
 
 
-sub fix_node_indent {
-    my ($self, $fix) = @_;
+sub fix_node_indent($self, $fix) {
     for my $pos (@$self{qw/ start end /}) {
         $pos->{column} += $fix;
     }

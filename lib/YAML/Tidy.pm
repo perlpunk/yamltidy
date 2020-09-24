@@ -1,6 +1,7 @@
 use strict;
 use warnings;
-use 5.010;
+use v5.20;
+use experimental qw/ signatures /;
 package YAML::Tidy;
 
 use YAML::Tidy::Node;
@@ -18,8 +19,7 @@ use Data::Dumper;
 
 use constant DEBUG => $ENV{YAML_TIDY_DEBUG} ? 1 : 0;
 
-sub new {
-    my ($class, %args) = @_;
+sub new($class, %args) {
     my $self = bless {
         indent => $args{indent} || 2,
         verbose => $args{verbose},
@@ -28,8 +28,7 @@ sub new {
     return $self;
 }
 
-sub tidy {
-    my ($self, $yaml) = @_;
+sub tidy($self, $yaml) {
     local $Data::Dumper::Sortkeys = 1;
     my @lines = split /\n/, $yaml, -1;
     my $tree = $self->tree($yaml, \@lines);
@@ -39,8 +38,7 @@ sub tidy {
     return $yaml;
 }
 
-sub process {
-    my ($self, $parent, $node) = @_;
+sub process($self, $parent, $node) {
     my $type = $node->{type} || '';
     if ($node->{flow}) {
         return;
@@ -256,16 +254,14 @@ sub process {
     }
 }
 
-sub trim {
-    my ($self, $from, $to) = @_;
+sub trim($self, $from, $to) {
     my $lines = $self->{lines};
     for my $line (@$lines[ $from .. $to ]) {
         $line =~ s/[\t ]+$//;
     }
 }
 
-sub fix_indent {
-    my ($self, $node, $fix, $offset) = @_;
+sub fix_indent($self, $node, $fix, $offset) {
 #    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$fix], ['fix']);
 #    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$offset], ['offset']);
     $offset ||= 0;
@@ -306,9 +302,7 @@ sub fix_indent {
     @$lines[$startline .. $endline] = @slice;
 }
 
-sub tree {
-    my ($self, $yaml, $lines) = @_;
-
+sub tree($self, $yaml, $lines) {
     my $events = $self->parse($yaml);
     $self->{events} = $events;
     my $first = shift @$events;
@@ -407,15 +401,13 @@ sub tree {
     return $docs;
 }
 
-sub parse {
-    my ($self, $yaml) = @_;
+sub parse($self, $yaml) {
     my @events;
     YAML::LibYAML::API::parse_string_events($yaml, \@events);
     return \@events;
 }
 
-sub pp {
-    my ($event) = @_;
+sub pp($event) {
     my $name = $event->{name};
     my $level = $event->{level};
     $name =~ s/_event$//;
@@ -444,9 +436,7 @@ sub pp {
     printf $fmt, @args;
 }
 
-sub highlight {
-    my ($self, $yaml, $type) = @_;
-    $type ||= 'ansi';
+sub highlight($self, $yaml, $type = 'amsi') {
     my ($error, $tokens) = YAML::PP::Parser->yaml_to_tokens(string => $yaml);
     if ($error) {
         $tokens = [];
