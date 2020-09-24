@@ -61,24 +61,10 @@ for my $id (sort @ids) {
     push @valid, $id;
 }
 
-my @configs = (
-    {
-        indent => 1,
-        trimtrailing => 1,
-    },
-    {
-        indent => 2,
-        trimtrailing => 1,
-    },
-    {
-        indent => 3,
-        trimtrailing => 1,
-    },
-    {
-        indent => 4,
-        trimtrailing => 1,
-    },
-);
+my @yt = map {
+    my $cfg = YAML::Tidy::Config->new( configfile => "$Bin/config$_.yaml" );
+    YAML::Tidy->new( cfg => $cfg );
+} (0 .. 3);
 for my $id (@valid) {
     print "\r=========== $id";
     my $in = "$ts/$id/in.yaml";
@@ -88,9 +74,8 @@ for my $id (@valid) {
     open(my $fh, '<:encoding(UTF-8)', $in);
     my $yaml = do { local $/; <$fh> };
     close $fh;
-    for my $i (0 .. $#configs) {
-        my $config = $configs[ $i ];
-        my $yt = YAML::Tidy->new( verbose => 0, %$config );
+    for my $i (0 .. 3) {
+        my $yt = $yt[ $i ];
         my $out = $yt->tidy($yaml);
         open my $fh, '>:encoding(UTF-8)', "$dir/c$i.yaml";
         print $fh $out;

@@ -5,6 +5,7 @@ use experimental qw/ signatures /;
 package YAML::Tidy;
 
 use YAML::Tidy::Node;
+use YAML::Tidy::Config;
 use YAML::LibYAML::API;
 use YAML::LibYAML::API::XS;
 use YAML::PP::Common qw/
@@ -20,13 +21,15 @@ use Data::Dumper;
 use constant DEBUG => $ENV{YAML_TIDY_DEBUG} ? 1 : 0;
 
 sub new($class, %args) {
+    my $cfg = delete $args{cfg} || YAML::Tidy::Config->new();
     my $self = bless {
-        indent => $args{indent} || 2,
-        verbose => $args{verbose},
-        partial => $args{partial},
+        partial => delete $args{partial},
+        cfg => $cfg,
     }, $class;
     return $self;
 }
+
+sub cfg($self) { $self->{cfg} }
 
 sub tidy($self, $yaml) {
     local $Data::Dumper::Sortkeys = 1;
@@ -44,11 +47,11 @@ sub process($self, $parent, $node) {
         return;
     }
     my $level = $node->{level};
-    my $indent = $self->{indent};
+    my $indent = $self->cfg->indent;
     my $lines = $self->{lines};
     return unless @$lines;
     my $indenttoplevelscalar = 1;
-    my $trimtrailing = 1;
+    my $trimtrailing = $self->cfg->trimtrailing;
 
     my $col = $node->indent;
     my $lastcol = $parent ? $parent->indent : -99;

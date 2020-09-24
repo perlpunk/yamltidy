@@ -3,16 +3,22 @@ use strict;
 use warnings;
 use 5.010;
 use YAML::Tidy;
-use Getopt::Long;
+use YAML::Tidy::Config;
+use Getopt::Long::Descriptive;
 use Encode;
 
-GetOptions(
-    'verbose|v' => \my $verbose,
-    'indent=i' => \my $indent,
-    'inplace' => \my $inplace,
-    'debug' => \my $debug,
-    'partial' => \my $partial,
-) or die("Error in command line arguments\n");
+my ($opt, $usage) = describe_options(
+    'yamltidy %o file(s)',
+    [ 'config-file|c=s' => 'Config file' ],
+    [ 'config-data|d=s' => 'Configuration as a string' ],
+    [ 'inplace|i' => 'Edit file inplace' ],
+    [ 'debug' => 'Debugging output' ],
+    [ 'partial' => 'Input is only a part of a YAML file' ],
+    [ 'indent=i' => 'Override indentation spaces from config' ],
+    [],
+    [ 'help|h', "print usage message and exit", { shortcircuit => 1 } ],
+);
+print($usage->text), exit if $opt->help;
 
 my ($file) = @ARGV;
 my $yaml;
@@ -26,25 +32,28 @@ else {
 }
 
 #say ">>$yaml<<";
-my $yt = YAML::Tidy->new(
-    verbose => $verbose,
-    indent => $indent,
-    partial => $partial,
+my $cfg = YAML::Tidy::Config->new(
+    configfile => $opt->config_file,
+    configdata => $opt->config_data,
+    indentspaces => $opt->indent,
 );
-    if ($debug) {
-        print encode_utf8 $yt->highlight($yaml);
-    }
-    else {
-#        print encode_utf8 $yaml;
-    }
+my $yt = YAML::Tidy->new(
+    cfg => $cfg,
+    partial => $opt->partial,
+);
+if ($opt->debug) {
+    print encode_utf8 $yt->highlight($yaml);
+}
+
 my $out = $yt->tidy($yaml);
-if ($inplace) {
+
+if ($opt->inplace) {
     open my $fh, '>:encoding(UTF-8)', $file or die $!;
     print $fh $out;
     close $fh;
 }
 else {
-    if ($debug) {
+    if ($opt->debug) {
         print encode_utf8 $yt->highlight($out);
     }
     else {

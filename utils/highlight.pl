@@ -9,6 +9,14 @@ use YAML::PP::Highlight;
 use YAML::PP::Parser;
 use YAML::Tidy;
 
+my @configs = map {
+    open my $fh, '<', "$Bin/config$_.yaml";
+    my $yaml = do { local $/; <$fh> };
+    close $fh;
+    my $html = YAML::Tidy->highlight($yaml, 'html');
+    $html;
+} (0 .. 3);
+
 $|++;
 my $datadir = "$Bin/generated";
 opendir(my $dh, $datadir);
@@ -16,6 +24,9 @@ my @ids = sort grep { m/^[A-Z0-9]{4}$/ } readdir $dh;
 closedir $dh;
 
 my $table = qq{<table class="highlight">};
+$table .= qq{<tr><th>ID</th><th>Input</th>};
+$table .= qq{<th align="left"><pre>$configs[ $_ ]</th>\n} for (0 .. 3);
+$table .= qq{</tr>};
 for my $id (@ids) {
     print "\r======== $id";
     my @names = qw/ in c0 c1 c2 c3 /;
