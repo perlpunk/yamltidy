@@ -1,8 +1,11 @@
+# ABSTRACT: Tidy YAML files
 use strict;
 use warnings;
 use v5.20;
 use experimental qw/ signatures /;
 package YAML::Tidy;
+
+our $VERSION = '0.000'; # VERSION
 
 use YAML::Tidy::Node;
 use YAML::Tidy::Config;
@@ -439,7 +442,7 @@ sub pp($event) {
     printf $fmt, @args;
 }
 
-sub highlight($self, $yaml, $type = 'amsi') {
+sub highlight($self, $yaml, $type = 'ansi') {
     my ($error, $tokens) = YAML::PP::Parser->yaml_to_tokens(string => $yaml);
     if ($error) {
         $tokens = [];
@@ -460,3 +463,49 @@ sub highlight($self, $yaml, $type = 'amsi') {
 }
 
 1;
+
+__END__
+
+=pod
+
+=encoding utf-8
+
+=head1 NAME
+
+YAML::Tidy - Clean YAML files
+
+=head1 SYNOPSIS
+
+    % yamltidy in.yaml
+    a:
+        b:
+         c: d
+
+For documentation see L<https://github.com/perlpunk/yamltidy>
+
+=head1 DESCRIPTION
+
+yamltidy can automatically fix indentation in your YAML files.
+
+For more information, see L<https://github.com/perlpunk/yamltidy>.
+
+=head1 SEE ALSO
+
+=over
+
+=item yamllint L<https://yamllint.readthedocs.io/en/stable/>
+
+=item perltidy L<Perl::Tidy>
+
+=item L<YAML::PP::LibYAML>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright 2020 by Tina Müller
+
+This library is free software and may be distributed under the same terms
+as perl itself.
+
+=cut

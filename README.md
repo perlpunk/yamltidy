@@ -26,6 +26,26 @@ It is based on [C libyaml](https://github.com/yaml/libyaml) and
     # inplace - directly write result into original file
     yamltidy --inplace foo.yaml
 
+## Installation
+
+If you don't have a Perl CPAN client to install modules, install cpanminus:
+
+    # debian example
+    % apt-get install cpanminus
+    # openSUSE
+    % zypper install perl-App-cpanminus
+
+Install yamltidy
+
+    % cpanm YAML::Tidy
+
+If you just want to play with it, but don't want to install it globally,
+use this:
+
+    % cpanm -l ~/localyamltidy YAML::Tidy
+    % EXPORT PERL5LIB=~/localyamltidy/lib/perl5
+    % PATH=~/localyamltidy/bin:$PATH
+
 ## Config
 
 The configuration is similar as for yamllint.

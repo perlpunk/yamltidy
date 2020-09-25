@@ -1,8 +1,12 @@
+# ABSTRACT: yamltidy config module
 use strict;
 use warnings;
 use v5.20;
 use experimental qw/ signatures /;
 package YAML::Tidy::Config;
+
+our $VERSION = '0.000'; # VERSION
+
 use Cwd qw/ cwd /;
 
 sub new($class, %args) {

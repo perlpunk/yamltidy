@@ -1,8 +1,11 @@
+# ABSTRACT: yamltidy parse tree element
 use strict;
 use warnings;
 use v5.20;
 use experimental qw/ signatures /;
 package YAML::Tidy::Node;
+
+our $VERSION = '0.000'; # VERSION
 
 sub new($class, %args) {
     my $self = {
