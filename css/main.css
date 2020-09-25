@@ -1,0 +1,42 @@
+body {
+    font-family: Arial;
+}
+table.highlight {
+    border: 1px solid #bbb;
+    border-collapse: collapse;
+    box-shadow: 2px 2px 4px 1px grey;
+}
+table.highlight tr th, table.highlight tr td {
+    border: 1px solid #bbb;
+    padding: 2px 3px 2px 3px;
+    vertical-align: top;
+}
+table.highlight tr td.yaml {
+    max-width: 17em;
+    overflow-x: auto;
+    font-size: 93%;
+}
+table.highlight tr td.id {
+    font-size: 110%;
+    background-color: #f8f8f8;
+}
+table.highlight tr td.id:target {
+    background-color: yellow;
+}
+table.highlight tr td.input {
+    border-right: 3px solid #bbb;
+}
+table.highlight tr th {
+    background-color: #f8f8f8;
+    border-bottom: 3px solid #bbb;
+}
+pre {
+    padding: 2px;
+}
+pre.error {
+    border: 1px solid red;
+}
+pre.diff {
+    border: 1px solid #ff9900;
+}
+
