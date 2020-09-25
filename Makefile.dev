@@ -24,21 +24,26 @@ testp:
 testv:
 	prove -lrv t
 
-highlight:
+generate:
 	perl -Ilib utils/generate.pl
+highlight:
 	perl -Ilib utils/highlight.pl
 
-#gh-pages:
-#	git worktree add gh-pages gh-pages
-#
-#gh-pages-status: gh-pages
-#	cd gh-pages && git status
-#
-#gh-pages-diff: gh-pages
-#	cd gh-pages && git diff
-#
-#gh-pages-commit: gh-pages
-#	cd gh-pages && git add . && git commit -m "Generate HTML"
-#
-#gh-pages-push: gh-pages
-#	cd gh-pages && git push
+gh-pages:
+	git worktree add gh-pages gh-pages
+
+gh-pages-status: gh-pages
+	cd gh-pages && git status
+
+gh-pages-diff: gh-pages
+	cd gh-pages && git diff
+
+gh-pages-commit: gh-pages
+	cd gh-pages && git add . && git commit -m "Generate HTML"
+
+gh-pages-push: gh-pages
+	cd gh-pages && git push
+
+gh-pages-generate: generate highlight
+	rm -r gh-pages/*
+	cp -r html/* gh-pages/

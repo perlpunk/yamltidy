@@ -1,5 +1,7 @@
 ^/local/
 ^/.build/
 /cover_db/
+/gh-pages/
 /yts/
 /utils/generated/
+/html/indent.html

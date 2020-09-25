@@ -5,8 +5,8 @@ span.indent { background-color: #e8e8e8; }
 span.dash { font-weight: bold; color: magenta; }
 span.colon { font-weight: bold; color: magenta; }
 span.question { font-weight: bold; color: magenta; }
-span.yaml_directive { color: cyan; }
-span.tag_directive { color: cyan; }
+span.yaml_directive { color: red; }
+span.tag_directive { color: red; }
 span.tag { color: blue; }
 span.comment { color: grey; }
 span.eol { color: grey; }
