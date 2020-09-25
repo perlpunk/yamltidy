@@ -106,11 +106,11 @@ The best output for 4 spaces is subject to discussion for a lot of test cases.
 ### Mappings for vim
 
 
-    :noremap <leader>yt ggvG:!perl -Ilib bin/yamltidy -<CR>
+    :noremap <leader>yt ggvG:!yamltidy -<CR>
 
 Type `<leader>yt` to tidy the whole buffer
 
-    :vnoremap <leader>yt :!perl -Ilib bin/yamltidy --partial -<CR>
+    :vnoremap <leader>yt :!yamltidy --partial -<CR>
 
 Visually select lines and type `<leader>yt`. The first level of indentation
 spaces will be kept.
