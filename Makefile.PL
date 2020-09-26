@@ -44,7 +44,7 @@ my %WriteMakefileArgs = (
     "Test::More" => "0.98",
     "Test::Warnings" => 0,
     "YAML::LibYAML::API" => "0.012",
-    "YAML::PP::LibYAML" => "0.05"
+    "YAML::PP::LibYAML" => "0.005"
   },
   "VERSION" => "0.001",
   "test" => {
@@ -69,7 +69,7 @@ my %FallbackPrereqs = (
   "YAML::LibYAML::API::XS" => 0,
   "YAML::PP::Common" => 0,
   "YAML::PP::Highlight" => 0,
-  "YAML::PP::LibYAML" => "0.05",
+  "YAML::PP::LibYAML" => "0.005",
   "YAML::PP::Parser" => 0,
   "base" => 0,
   "constant" => 0,
