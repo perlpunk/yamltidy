@@ -78,14 +78,19 @@ for my $id (sort @ids) {
 @valid = @valid[0..168];
 #@valid = $valid[0];
 my @indents = (1 .. 4);
-#@indents = 2;
+
+my @yt = map {
+    my $cfg = YAML::Tidy::Config->new( configfile => "$Bin/../utils/config$_.yaml" );
+    YAML::Tidy->new( cfg => $cfg );
+} (0 .. 4);
+
 my %failed;
-for my $indent (@indents) {
-    diag "============= indent $indent";
+for my $i (0 .. 4) {
+    diag "============= config $i";
+    my $yt = $yt[ $i ];
     for my $id (@valid) {
-        my $label = "(indent: $indent) $id";
+        my $label = "(config: $i) $id";
         note "======================================================= $label";
-        my $yt = YAML::Tidy->new( indent => $indent );
         open my $fh, '<encoding(UTF-8)', "$ts/$id/in.yaml";
         my $in = do { local $/; <$fh> };
         close $fh;
@@ -98,7 +103,7 @@ for my $indent (@indents) {
             fail("$label - Error tidying");
             diag $err;
             die 23;
-            push @{ $failed{ $indent } }, $id;
+            push @{ $failed{ $i } }, $id;
             next;
         }
         my $debug = $yt->highlight($out);
@@ -117,7 +122,7 @@ for my $indent (@indents) {
             diag $out;
             diag $err;
             die 23;
-            push @{ $failed{ $indent } }, $id;
+            push @{ $failed{ $i } }, $id;
             next;
         }
 
@@ -141,7 +146,7 @@ for my $indent (@indents) {
         cmp_deeply(\@events, \@previous_events, "$label - Reparse same events") or do {
             diag(Data::Dumper->Dump([\@events], ['events']));
             diag(Data::Dumper->Dump([\@previous_events], ['previous_events']));
-            push @{ $failed{ $indent } }, $id;
+            push @{ $failed{ $i } }, $id;
         };
     }
 }

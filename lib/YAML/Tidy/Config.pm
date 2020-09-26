@@ -7,7 +7,7 @@ package YAML::Tidy::Config;
 
 our $VERSION = '0.000'; # VERSION
 
-use Cwd qw/ cwd /;
+use Cwd;
 
 sub new($class, %args) {
     my $yaml;
@@ -18,8 +18,8 @@ sub new($class, %args) {
     else {
         my $file = $args{configfile};
         unless (defined $file) {
-            my ($home) = <~>;
-            my $cwd = cwd();
+            my ($home) = $class->_homedir;
+            my $cwd = $class->_cwd;
             my @candidates = (
                 "$cwd/.yamltidy",
                 "$home/.config/yamltidy/config.yaml",
@@ -61,7 +61,7 @@ sub new($class, %args) {
 
     delete @args{qw/ configfile configdata /};
     if (my @unknown = keys %args) {
-        warn "Unknown configuration keys: @unknown";
+        die "Unknown configuration keys: @unknown";
     }
     my $self = bless {
         version => $v,
@@ -69,6 +69,14 @@ sub new($class, %args) {
         trimtrailing => $trimtrailing,
     }, $class;
     return $self;
+}
+
+sub _cwd {
+    return Cwd::cwd();
+}
+
+sub _homedir($class) {
+    return <~>;
 }
 
 sub indent($self) {
