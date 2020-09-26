@@ -517,6 +517,10 @@ Return L<YAML::Tidy::Config>
 
 =back
 
+=head1 AUTHOR
+
+Tina Müller E<lt>tinita@cpan.orgE<gt>
+
 =head1 SEE ALSO
 
 =over
