@@ -7,4 +7,5 @@
 ^nytprof.out
 ^gh-pages
 ^utils/generated
-^html/indent.html
+^html/
+^Makefile.dev

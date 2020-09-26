@@ -32,7 +32,7 @@ jobs:
     - name: Install deps
       run: >
         cpanm --notest
-        YAML::PP YAML::PP::LibYAML Getopt::Long::Descriptive
+        YAML::PP YAML::LibYAML::API Getopt::Long::Descriptive
         Test::Deep Test::Warnings Test::More JSON::PP
 
 

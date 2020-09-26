@@ -15,7 +15,7 @@ yamltidy will take a configuration (YAML) file like yamllint, and fix
 indentation inconsistencies, trailing spaces and more.
 
 It is based on [C libyaml](https://github.com/yaml/libyaml) and
-[perl YAML::PP::LibYAML](https://metacpan.org/pod/YAML::PP::LibYAML).
+[perl YAML::LibYAML::API](https://metacpan.org/pod/YAML::LibYAML::API).
 
     % yamltidy foo.yaml
     ---

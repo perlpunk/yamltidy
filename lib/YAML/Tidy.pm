@@ -9,7 +9,6 @@ our $VERSION = '0.000'; # VERSION
 
 use YAML::Tidy::Node;
 use YAML::Tidy::Config;
-use YAML::LibYAML::API;
 use YAML::LibYAML::API::XS;
 use YAML::PP::Common qw/
     YAML_PLAIN_SCALAR_STYLE YAML_SINGLE_QUOTED_SCALAR_STYLE
@@ -409,7 +408,7 @@ sub tree($self, $yaml, $lines) {
 
 sub parse($self, $yaml) {
     my @events;
-    YAML::LibYAML::API::parse_string_events($yaml, \@events);
+    YAML::LibYAML::API::XS::parse_string_events($yaml, \@events);
     return \@events;
 }
 
@@ -497,7 +496,11 @@ For more information, see L<https://github.com/perlpunk/yamltidy>.
 
 =item perltidy L<Perl::Tidy>
 
-=item L<YAML::PP::LibYAML>
+=item L<YAML::LibYAML::API>
+
+=item L<https://github.com/yaml/libyaml>
+
+=item L<https://www.yaml.info/>
 
 =back
 
