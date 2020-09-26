@@ -36,14 +36,14 @@ sub cfg($self) { $self->{cfg} }
 sub tidy($self, $yaml) {
     local $Data::Dumper::Sortkeys = 1;
     my @lines = split /\n/, $yaml, -1;
-    my $tree = $self->tree($yaml, \@lines);
+    my $tree = $self->_tree($yaml, \@lines);
     $self->{lines} = \@lines;
-    $self->process(undef, $tree);
+    $self->_process(undef, $tree);
     $yaml = join "\n", @{ $self->{lines} };
     return $yaml;
 }
 
-sub process($self, $parent, $node) {
+sub _process($self, $parent, $node) {
     my $type = $node->{type} || '';
     if ($node->{flow}) {
         return;
@@ -70,7 +70,7 @@ sub process($self, $parent, $node) {
     if ($pre and $trimtrailing) {
         if (defined $pre->{line} and $pre->{line} <= $start->{line}) {
             my ($from, $to) = ($pre->{line}, $start->{line});
-            $self->trim($from, $to);
+            $self->_trim($from, $to);
         }
         if ($type eq 'DOC') {
         }
@@ -80,7 +80,7 @@ sub process($self, $parent, $node) {
         my $ignore_firstlevel = ($self->{partial} and $level == 0);
         if ($level < 0 or $ignore_firstlevel) {
             for my $c (@{ $node->{children} }) {
-                $self->process($node, $c);
+                $self->_process($node, $c);
             }
             return;
         }
@@ -115,11 +115,11 @@ sub process($self, $parent, $node) {
         my $diff = $indent - $realindent;
 #        warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$diff], ['diff']);
         if ($diff) {
-            $self->fix_indent($node, $diff, $col);
+            $self->_fix_indent($node, $diff, $col);
             $node->fix_node_indent($diff);
         }
         for my $c (@{ $node->{children} }) {
-            $self->process($node, $c);
+            $self->_process($node, $c);
         }
         return;
     }
@@ -145,7 +145,7 @@ sub process($self, $parent, $node) {
         if ($node->{style} != YAML_PLAIN_SCALAR_STYLE) {
             while ($startline < $endline) {
                 if ($trimtrailing) {
-                    $self->trim($startline, $startline);
+                    $self->_trim($startline, $startline);
                 }
                 if ($node->{style} != YAML_PLAIN_SCALAR_STYLE and $lines->[ $startline ] =~ m/(?:^|\t| )([>|"'])/g) {
                     my $pos = pos $lines->[ $startline ];
@@ -175,7 +175,7 @@ sub process($self, $parent, $node) {
             }
             while ($startline < $endline and $lines->[ $startline ] !~ tr/ //c) {
                 if ($trimtrailing) {
-                    $self->trim($startline, $startline);
+                    $self->_trim($startline, $startline);
                 }
                 $startline++;
             }
@@ -259,14 +259,14 @@ sub process($self, $parent, $node) {
     }
 }
 
-sub trim($self, $from, $to) {
+sub _trim($self, $from, $to) {
     my $lines = $self->{lines};
     for my $line (@$lines[ $from .. $to ]) {
         $line =~ s/[\t ]+$//;
     }
 }
 
-sub fix_indent($self, $node, $fix, $offset) {
+sub _fix_indent($self, $node, $fix, $offset) {
 #    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$fix], ['fix']);
 #    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$offset], ['offset']);
     $offset ||= 0;
@@ -307,8 +307,8 @@ sub fix_indent($self, $node, $fix, $offset) {
     @$lines[$startline .. $endline] = @slice;
 }
 
-sub tree($self, $yaml, $lines) {
-    my $events = $self->parse($yaml);
+sub _tree($self, $yaml, $lines) {
+    my $events = $self->_parse($yaml);
     $self->{events} = $events;
     my $first = shift @$events;
     my $end = pop @$events;
@@ -400,19 +400,19 @@ sub tree($self, $yaml, $lines) {
             my $nextline = $next->{start}->{line};
             $event->{nextline} = $nextline;
         }
-        pp($event) if DEBUG;
+        _pp($event) if DEBUG;
     }
     $self->{tree} = $docs;
     return $docs;
 }
 
-sub parse($self, $yaml) {
+sub _parse($self, $yaml) {
     my @events;
     YAML::LibYAML::API::XS::parse_string_events($yaml, \@events);
     return \@events;
 }
 
-sub pp($event) {
+sub _pp($event) {
     my $name = $event->{name};
     my $level = $event->{level};
     $name =~ s/_event$//;
@@ -475,10 +475,14 @@ YAML::Tidy - Clean YAML files
 
 =head1 SYNOPSIS
 
-    % yamltidy in.yaml
+    % cat in.yaml
     a:
         b:
          c: d
+    % yamltidy in.yaml
+    a:
+      b:
+        c: d
 
 For documentation see L<https://github.com/perlpunk/yamltidy>
 
@@ -487,6 +491,31 @@ For documentation see L<https://github.com/perlpunk/yamltidy>
 yamltidy can automatically fix indentation in your YAML files.
 
 For more information, see L<https://github.com/perlpunk/yamltidy>.
+
+=head1 METHODS
+
+=over
+
+=item C<new>
+
+    my $yt = YAML::Tidy->new;
+
+=item C<tidy>
+
+    my $outyaml = $yt->tidy($inyaml);
+
+=item C<highlight>
+
+    my $ansicolored = $yt->highlight($yaml, 'ansi');
+    my $html = $yt->highlight($yaml, 'html');
+
+=item C<cfg>
+
+    my $cfg = $yt->cfg;
+
+Return L<YAML::Tidy::Config>
+
+=back
 
 =head1 SEE ALSO
 

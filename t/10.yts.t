@@ -111,7 +111,7 @@ for my $indent (@indents) {
             delete $_->{end};
             $_
         } @{ $yt->{events} };
-        my $events = eval { $yt->parse($out) };
+        my $events = eval { $yt->_parse($out) };
         if (my $err = $@) {
             fail("$label - Reparse ok");
             diag $out;
