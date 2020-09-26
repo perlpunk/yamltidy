@@ -50,6 +50,10 @@ sub end($self) {
     return $self->{end}->{end};
 }
 
+sub realendline($self) {
+    $self->{end}->{end}->{line} - 1;
+}
+
 sub start($self) {
     return $self->{start}->{start};
 }
@@ -104,6 +108,16 @@ sub end($self) {
     return $self->{end};
 }
 
+sub realendline($self) {
+    my $end = $self->{end};
+    if ($self->{style} == YAML_LITERAL_SCALAR_STYLE
+        or $self->{style} == YAML_FOLDED_SCALAR_STYLE) {
+            if ($end->{column} == 0) {
+                return $end->{line} - 1;
+            }
+        }
+    $end->{line};
+}
 
 sub line($self) {
     my $contentstart = $self->contentstart;

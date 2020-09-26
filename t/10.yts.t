@@ -121,7 +121,6 @@ for my $i (0 .. 4) {
             fail("$label - Reparse ok");
             diag $out;
             diag $err;
-            die 23;
             push @{ $failed{ $i } }, $id;
             next;
         }

@@ -131,48 +131,65 @@ sub _process($self, $parent, $node) {
         if ($node->empty_scalar) {
             return;
         }
-        my $endline = $node->{end}->{line} - 1;
-        my $nextline = $node->{nextline};
-        my $new_indent = $parent->indent + $indent;
-
-        my $new_spaces = ' ' x $new_indent;
         if ($node->{name} eq 'alias_event') {
             return;
         }
+        my $new_indent = $parent->indent + $indent;
+        my $new_spaces = ' ' x $new_indent;
+
+        my ($anchor, $tag, $comments, $scalar) = $self->_find_scalar_start($node);
+#        warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$lines], ['lines']);
+#        warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$scalar], ['scalar']);
+        my $explicit_indent = 0;
+        if ($scalar->[2] =~ m/[>|]/) {
+            my $l = $lines->[ $scalar->[0] ];
+            my ($ind) = substr($l, $scalar->[1]) =~ m/^[|>][+-]?([0-9]*)/;
+            $explicit_indent = $ind;
+        }
+        my $skipfirst = 0;
+        my $before = substr($line, 0, $col);
+        if ($before =~ tr/ \t//c) {
+            # same line as key
+            $before =~ s/[\t ]+$/ /;
+            $line = $before . substr($line, $col);
+            $lines->[ $startline ] = $line;
+            $skipfirst = 1;
+        }
+        my $realstart = $scalar->[0];
+        if ($trimtrailing) {
+            $self->_trim($startline, $realstart);
+        }
+        for my $i ($startline .. $realstart) {
+            my $line = $lines->[ $i ];
+            if ($i == $startline and $col > 0) {
+                my $before = substr($line, 0, $col);
+                if ($before =~ tr/ //c) {
+                    next;
+                }
+            }
+            unless ($line =~ tr/ //c) {
+                next;
+            }
+            $line =~ s/^ */$new_spaces/;
+            $lines->[ $i] = $line;
+        }
+        # leave alone explicitly indented block scalars
+        return if $explicit_indent;
+
+        $startline = $realstart;
+        my $endline = $node->realendline;
+
+        my $line = $lines->[ $startline ];
+        my $realcol = $scalar->[1];
+        $col = $realcol;
+
+        my $nextline = $node->{nextline};
+
         my $block = ($node->{style} eq YAML_LITERAL_SCALAR_STYLE
             or $node->{style} eq YAML_FOLDED_SCALAR_STYLE);
-        my $explicit_indent = 0;
-        if ($node->{style} != YAML_PLAIN_SCALAR_STYLE) {
-            while ($startline < $endline) {
-                if ($trimtrailing) {
-                    $self->_trim($startline, $startline);
-                }
-                if ($node->{style} != YAML_PLAIN_SCALAR_STYLE and $lines->[ $startline ] =~ m/(?:^|\t| )([>|"'])/g) {
-                    my $pos = pos $lines->[ $startline ];
-                    $col = $pos - 1;
-                    last;
-                }
-                $startline++;
-            }
-        }
-        my $line = $lines->[ $startline ];
-        my $before = substr($line, 0, $col);
         if ($block) {
-            my ($ind) = substr($line, $col) =~ m/^[|>][+-]?([0-9]*)/;
-            # leave alone explicitly indented block scalars
-            return if $ind;
 
-            if ($before =~ tr/ \t//c) {
-                # same line as key
-                $before =~ s/[\t ]+$/ /;
-                $line = $before . substr($line, $col);
-                $lines->[ $startline ] = $line;
-                $startline++;
-            }
-            else {
-                $lines->[ $startline ] =~ s/^ +/$new_spaces/;
-                $startline++;
-            }
+            $startline++;
             while ($startline < $endline and $lines->[ $startline ] !~ tr/ //c) {
                 if ($trimtrailing) {
                     $self->_trim($startline, $startline);
@@ -228,14 +245,8 @@ sub _process($self, $parent, $node) {
         elsif ($node->{style} == YAML_PLAIN_SCALAR_STYLE or
                 $node->{style} == YAML_SINGLE_QUOTED_SCALAR_STYLE or
                 $node->{style} == YAML_DOUBLE_QUOTED_SCALAR_STYLE) {
+            $startline++ if $skipfirst;
             $endline = $node->{end}->{line};
-            if ($before =~ tr/ //c) {
-                # same line as key
-                if ($trimtrailing) {
-                    $lines->[ $startline ] =~ s/[\t ]+$//;
-                }
-                $startline++;
-            }
             return if $startline >= @$lines;
             my @slice = @$lines[$startline .. $endline ];
             if ($level == 0 and not $indenttoplevelscalar) {
@@ -259,6 +270,72 @@ sub _process($self, $parent, $node) {
     }
 }
 
+sub _find_scalar_start($self, $node) {
+    my $lines = $self->{lines};
+    my $from = $node->line;
+    my $to = $node->realendline;
+    my $col = $node->indent;
+    my $end = $node->end;
+    my $endcol = $end->{column};
+#    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$endcol], ['endcol']);
+#    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$col], ['col']);
+    my @slice = @$lines[ $from .. $to ];
+#    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\@slice], ['slice']);
+    my $anchor;
+    my $tag;
+    my @comments;
+    my $start;
+    my $scalar;
+    for my $i (0 .. $#slice) {
+        my $line = $slice[ $i ];
+        my $f = $i == 0 ? $col : 0;
+        my $t = $i == $#slice ? ($endcol || length($line)) : length($line);
+        my $part = substr($line, $f, $t - $f);
+        if ($part =~ m/^ *(\#.*)$/g) {
+            my $comment = $1;
+            my $pos1 = length($line) - length($comment);
+            push @comments, [$i + $from, $pos1, $comment];
+            next;
+        }
+        my $cur;
+        while ($part =~ m/\G\s*([&!])(\S+)/g) {
+            my $type = $1;
+            my $name = $2;
+            $cur = pos $part;
+            my $pos = $cur - 1;
+            my $pos1 = $pos - length $name;
+            my $prop = substr($part, $pos1, 1+ length $name);
+            if ($type eq '&') {
+                $anchor = [$i + $from, $pos1 + $f, $prop];
+            }
+            elsif ($type eq '!') {
+                $tag = [$i + $from, $pos1 + $f, $prop];
+            }
+        }
+        pos($part) = $cur;
+        if ($part =~ m/\G *(\#.*)$/g) {
+            my $comment = $1;
+            $cur = pos $part;
+            my $pos1 = length($line) - length($comment);
+            push @comments, [$i + $from, $pos1, $comment];
+            next;
+        }
+        pos($part) = $cur;
+        if ($part =~ m/\G *(\S)/g) {
+            $scalar = $1;
+            my $pos1 = (pos $part) - 1;
+            $scalar = [$i + $from, $pos1 + $f, $scalar];
+            last;
+        }
+    }
+    $scalar ||= [$to, length($slice[ -1 ]), ''];
+#    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$anchor], ['anchor']);
+#    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$tag], ['tag']);
+#    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\@comments], ['comments']);
+#    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$scalar], ['scalar']);
+    return ($anchor, $tag, \@comments, $scalar);
+}
+
 sub _trim($self, $from, $to) {
     my $lines = $self->{lines};
     for my $line (@$lines[ $from .. $to ]) {
@@ -272,8 +349,7 @@ sub _fix_indent($self, $node, $fix, $offset) {
     $offset ||= 0;
     my $startline = $node->line;
     my $lines = $self->{lines};
-    my $endline = $node->{endline};
-    $endline--; # if $endline >= @$lines;
+    my $endline = $node->realendline;
     my @slice = @$lines[$startline .. $endline];
     for my $line (@slice) {
         next unless length $line;
@@ -378,7 +454,6 @@ sub _tree($self, $yaml, $lines) {
         elsif ($name =~ m/_end_event/) {
             my $last = pop @stack;
 
-            $ref->{endline} = $event->{end}->{line};
             $ref->{end} = $event;
 
             $ref = $last;
