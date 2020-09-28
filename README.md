@@ -26,6 +26,9 @@ It is based on [C libyaml](https://github.com/yaml/libyaml) and
     # inplace - directly write result into original file
     yamltidy --inplace foo.yaml
 
+You can find results for several configurations here:
+[perlpunk.github.io/yamltidy](https://perlpunk.github.io/yamltidy)
+
 ## Installation
 
 If you don't have a Perl CPAN client to install modules, install cpanminus:
