@@ -1,5 +1,12 @@
 Revision history for Perl module YAML::Tidy
 
+0.002_001 2020-09-30 23:49:59+02:00
+
+    - Fix --version option
+    - Remove trailing spaces also at the end of events
+    - Fix partial processing for scalars
+    - Trim trailing spaces in flow
+
 0.002 2020-09-29 18:25:51+02:00
 
     - Improve finding of node start and end
