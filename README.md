@@ -46,8 +46,13 @@ If you just want to play with it, but don't want to install it globally,
 use this:
 
     % cpanm -l ~/localyamltidy YAML::Tidy
-    % EXPORT PERL5LIB=~/localyamltidy/lib/perl5
+    % export PERL5LIB=~/localyamltidy/lib/perl5
     % PATH=~/localyamltidy/bin:$PATH
+
+### Use Docker Image
+
+    % docker pull perlpunk/yamltidy
+    % docker run -i --rm perlpunk/yamltidy yamltidy - < in.yaml
 
 ## Config
 

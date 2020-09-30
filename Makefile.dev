@@ -47,3 +47,15 @@ gh-pages-push: gh-pages
 gh-pages-generate: generate highlight
 	rm -r gh-pages/*
 	cp -r html/* gh-pages/
+
+docker-base:
+	cd etc && docker build -t yamltidy-base -f Dockerfile.base .
+
+docker-build:
+	rm -rf etc/perl5
+	mkdir etc/perl5
+	cd etc && docker run -it --rm --user $$(id -u) -v$(PWD)/etc/perl5:/tmp/yamltidy  yamltidy-base /install-yamltidy.sh
+
+docker:
+	cd etc && docker build -t perlpunk/yamltidy .
+
