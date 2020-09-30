@@ -50,6 +50,10 @@ sub end($self) {
     return $self->{end}->{end};
 }
 
+sub endstart($self) {
+    return $self->{end}->{start};
+}
+
 sub realendline($self) {
     $self->{end}->{end}->{line} - 1;
 }
@@ -105,6 +109,10 @@ sub start($self) {
 }
 
 sub end($self) {
+    return $self->{end};
+}
+
+sub endstart($self) {
     return $self->{end};
 }
 

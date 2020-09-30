@@ -65,14 +65,33 @@ sub _process($self, $parent, $node) {
     }
     my $before = substr($line, 0, $col);
 
-    my $pre = $parent ? $parent->pre($node) : undef;
     my $start = $node->start;
-    if ($pre and $trimtrailing) {
-        if (defined $pre->{line} and $pre->{line} <= $start->{line}) {
-            my ($from, $to) = ($pre->{line}, $start->{line});
-            $self->_trim($from, $to);
+    if ($trimtrailing) {
+        my $pre = $parent ? $parent->pre($node) : undef;
+        if ($pre) {
+            if (defined $pre->{line} and $pre->{line} <= $start->{line}) {
+                my ($from, $to) = ($pre->{line}, $start->{line});
+                $self->_trim($from, $to);
+            }
         }
-        if ($type eq 'DOC') {
+        if ($level < 1 and $type ne '') {
+            # trim trailing spaces at the end of the node
+            my $last = $node->{children}->[-1];
+            my $from;
+            if ($last) {
+                my $end = $last->endstart;
+                $from = $end->{line} + 1;
+            }
+            else {
+                # empty node
+                $from = $node->{start}->{start}->{line};
+            }
+
+            my $end2 = $node->endstart;
+            my $to = $end2->{line};
+            if ($from <= $to) {
+                $self->_trim($from, $to);
+            }
         }
     }
 
@@ -388,6 +407,9 @@ sub _tree($self, $yaml, $lines) {
     $self->{events} = $events;
     my $first = shift @$events;
     my $end = pop @$events;
+    $_->{level} = -1 for ($first, $end);
+    $first->{id} = -1;
+    _pp($first) if DEBUG;
     my @stack;
 
     my $level = -1;
@@ -477,6 +499,8 @@ sub _tree($self, $yaml, $lines) {
         }
         _pp($event) if DEBUG;
     }
+    $end->{id} = $id + 1;
+    _pp($end) if DEBUG;
     $self->{tree} = $docs;
     return $docs;
 }
