@@ -69,7 +69,7 @@ sub _process($self, $parent, $node) {
     if ($trimtrailing) {
         my $pre = $parent ? $parent->pre($node) : undef;
         if ($pre) {
-            if (defined $pre->{line} and $pre->{line} <= $start->{line}) {
+            if ($pre->{line} <= $start->{line}) {
                 my ($from, $to) = ($pre->{line}, $start->{line});
                 $self->_trim($from, $to);
             }
@@ -143,6 +143,7 @@ sub _process($self, $parent, $node) {
         return;
     }
     else {
+        my $ignore_firstlevel = ($self->{partial} and $level == 0);
         my $multiline = $node->multiline;
         if ($parent->{type} eq 'MAP' and ($node->{index} % 2 and not $multiline)) {
             return;
@@ -178,6 +179,7 @@ sub _process($self, $parent, $node) {
         if ($trimtrailing) {
             $self->_trim($startline, $realstart);
         }
+        unless ($ignore_firstlevel) {
         for my $i ($startline .. $realstart) {
             my $line = $lines->[ $i ];
             if ($i == $startline and $col > 0) {
@@ -191,6 +193,7 @@ sub _process($self, $parent, $node) {
             }
             $line =~ s/^ */$new_spaces/;
             $lines->[ $i] = $line;
+        }
         }
         # leave alone explicitly indented block scalars
         return if $explicit_indent;
@@ -220,7 +223,7 @@ sub _process($self, $parent, $node) {
             }
             my @slice = @$lines[$startline .. $endline ];
             my ($sp) = $lines->[ $startline ] =~ m/^( *)/;
-            if (length($sp) != $new_indent) {
+            if (not $ignore_firstlevel and length($sp) != $new_indent) {
                 for my $line (@slice) {
                     unless (length $line) {
                         next;
@@ -267,21 +270,22 @@ sub _process($self, $parent, $node) {
             $startline++ if $skipfirst;
             $endline = $node->{end}->{line};
             return if $startline >= @$lines;
+            if ($trimtrailing) {
+                $self->_trim($startline, $endline);
+            }
+            my $line = $lines->[ $startline ];
+            my ($sp) = $line =~ m/^( *)/;
+            if ($ignore_firstlevel) {
+                $new_indent = length $sp;
+                $new_spaces = ' ' x $new_indent;
+            }
             my @slice = @$lines[$startline .. $endline ];
             if ($level == 0 and not $indenttoplevelscalar) {
                 $new_spaces = ' ' x ($new_indent - $indent);
             }
             for my $line (@slice) {
-                if ($line !~ tr/ //c) {
-                    if ($trimtrailing) {
-                        $line = '';
-                    }
-                }
-                else {
+                if ($line =~ tr/ //c) {
                     $line =~ s/^[\t ]*/$new_spaces/;
-                }
-                if ($trimtrailing) {
-                    $line =~ s/[\t ]+$//;
                 }
             }
             @$lines[$startline .. $endline ] = @slice;
@@ -570,7 +574,7 @@ __END__
 
 =head1 NAME
 
-YAML::Tidy - Clean YAML files
+YAML::Tidy - Tidy YAML files
 
 =head1 SYNOPSIS
 
@@ -587,7 +591,8 @@ For documentation see L<https://github.com/perlpunk/yamltidy>
 
 =head1 DESCRIPTION
 
-yamltidy can automatically fix indentation in your YAML files.
+yamltidy can automatically tidy formatting in your YAML files, for example
+adjust indentation and remove trailing spaces.
 
 For more information, see L<https://github.com/perlpunk/yamltidy>.
 
