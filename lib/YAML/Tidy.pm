@@ -46,6 +46,7 @@ sub tidy($self, $yaml) {
 sub _process($self, $parent, $node) {
     my $type = $node->{type} || '';
     if ($node->{flow}) {
+        $self->_process_flow($parent, $node);
         return;
     }
     my $level = $node->{level};
@@ -290,6 +291,21 @@ sub _process($self, $parent, $node) {
             }
             @$lines[$startline .. $endline ] = @slice;
         }
+    }
+}
+
+sub _process_flow($self, $parent, $node) {
+    return unless $parent;
+    my $flow = $node->{flow};
+    my $indent = $self->cfg->indent;
+    my $lines = $self->{lines};
+    my $col = $node->indent;
+    my $lastcol = $parent->indent;
+    my $realindent = $col - $lastcol;
+    my $startline = $node->line;
+    my $endline = $node->end->{line};
+    if ($flow == 1 and $self->cfg->trimtrailing) {
+        $self->_trim($startline, $endline);
     }
 }
 
