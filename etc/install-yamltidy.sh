@@ -3,4 +3,4 @@
 set -ex
 
 HOME=/tmp/home
-cpanm -l /tmp/yamltidy --notest YAML::Tidy@0.002_001
+cpanm -l /tmp/yamltidy --notest YAML::Tidy@0.003

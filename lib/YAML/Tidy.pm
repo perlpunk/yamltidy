@@ -646,11 +646,11 @@ YAML::Tidy - Tidy YAML files
 =head1 SYNOPSIS
 
     % cat in.yaml
-    a:
+    a: # a comment
         b:
          c: d
     % yamltidy in.yaml
-    a:
+    a: # a comment
       b:
         c: d
 

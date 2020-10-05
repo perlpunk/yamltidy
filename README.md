@@ -2,7 +2,9 @@
 
 This project is very new - a lot will change.
 
-yamltidy is inspired by the great tools
+yamltidy is a formatter for YAML files.
+
+It's is inspired by the great tools
 [yamllint](https://yamllint.readthedocs.io/en/stable/) and
 [perltidy](https://metacpan.org/pod/Perl::Tidy).
 
@@ -19,9 +21,9 @@ It is based on [C libyaml](https://github.com/yaml/libyaml) and
 
     % yamltidy foo.yaml
     ---
-    a:
+    a: # a comment
       b:
-        c
+        c: d
 
     # inplace - directly write result into original file
     yamltidy --inplace foo.yaml
@@ -41,6 +43,8 @@ If you don't have a Perl CPAN client to install modules, install cpanminus:
 Install yamltidy
 
     % cpanm YAML::Tidy
+    # faster without running tests
+    % cpanm --notest YAML::Tidy
 
 If you just want to play with it, but don't want to install it globally,
 use this:
