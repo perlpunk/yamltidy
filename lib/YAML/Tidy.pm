@@ -656,6 +656,8 @@ YAML::Tidy - Tidy YAML files
 
 For documentation see L<https://github.com/perlpunk/yamltidy>
 
+For examples see L<https://perlpunk.github.io/yamltidy>
+
 =head1 DESCRIPTION
 
 yamltidy can automatically tidy formatting in your YAML files, for example

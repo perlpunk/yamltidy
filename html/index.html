@@ -6,9 +6,48 @@
 </head>
 <body>
 <h2><a href="https://github.com/perlpunk/yamltidy">yamltidy</a></h2>
-Examples:
+
+<code>yamltidy</code> is a formatter/tidier for <a href="https://yaml.org">YAML</a> files.
+<br>
+Currently it can:
+<ul>
+<li>Adjust indentation</li>
+<li>Trim trailing spaces</li>
+</ul>
+Plans for the future:
+<ul>
+<li>Align mapping values</li>
+<li>Format anchors and tags to be on the same line as the parent node</li>
+<li>Reformat flow collections</li>
+</ul>
+
+It can be configured via a YAML config file, similar to yamllint.
+<p>
+What it can't do:
+<ul>
+<li>Fix invalid YAML</li>
+<li>Align comments if it's not clear where they belong to.
+</ul>
+For such things it's recommended to use a linter like
+<a href="https://yamllint.readthedocs.io/en/stable/">yamllint</a>.
+</p>
+
+
+<p>
+Examples for a large number of input files can be found here:
 <ul>
 <li><a href="indent.html">Indentations</a></li>
 </ul>
-</body>
-</html>
+
+<p>
+Links:
+<ul>
+<li>Github: <a href="https://github.com/perlpunk/yamltidy">yamltidy</a></li>
+<li><a href="https://yamllint.readthedocs.io/en/stable/">yamllint</a></li>
+<li><a href="https://yaml.org">yaml.org</a></li>
+<li><a href="https://github.com/yaml/yaml-test-suite">YAML Test Suite</a></li>
+<li><a href="https://www.yaml.info">yaml.info</a></li>
+</ul>
+</p>
+
+</body></html>

@@ -1,5 +1,9 @@
 Revision history for Perl module YAML::Tidy
 
+0.002_002 2020-10-05 16:58:15+02:00
+
+    - Indent flow collections
+
 0.002_001 2020-09-30 23:49:59+02:00
 
     - Fix --version option
