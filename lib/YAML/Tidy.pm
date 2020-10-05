@@ -85,7 +85,7 @@ sub _process($self, $parent, $node) {
             }
             else {
                 # empty node
-                $from = $node->close->{start}->{line};
+                $from = $node->open->{end}->{line};
             }
 
             my $end2 = $node->closestart;
