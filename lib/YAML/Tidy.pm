@@ -80,15 +80,15 @@ sub _process($self, $parent, $node) {
             my $last = $node->{children}->[-1];
             my $from;
             if ($last) {
-                my $end = $last->endstart;
+                my $end = $last->closestart;
                 $from = $end->{line} + 1;
             }
             else {
                 # empty node
-                $from = $node->{start}->{start}->{line};
+                $from = $node->close->{start}->{line};
             }
 
-            my $end2 = $node->endstart;
+            my $end2 = $node->closestart;
             my $to = $end2->{line};
             if ($from <= $to) {
                 $self->_trim($from, $to);
@@ -269,7 +269,7 @@ sub _process($self, $parent, $node) {
                 $node->{style} == YAML_SINGLE_QUOTED_SCALAR_STYLE or
                 $node->{style} == YAML_DOUBLE_QUOTED_SCALAR_STYLE) {
             $startline++ if $skipfirst;
-            $endline = $node->{end}->{line};
+            $endline = $node->close->{line};
             return if $startline >= @$lines;
             if ($trimtrailing) {
                 $self->_trim($startline, $endline);
@@ -294,18 +294,69 @@ sub _process($self, $parent, $node) {
     }
 }
 
-sub _process_flow($self, $parent, $node) {
+sub _process_flow($self, $parent, $node, $block_indent = undef) {
     return unless $parent;
-    my $flow = $node->{flow};
-    my $indent = $self->cfg->indent;
+    my $level = $node->{level};
+    my $flow = $node->{flow} || 0;
+    $block_indent //= $parent->indent + $self->cfg->indent;
+    $block_indent = 0 if $level == 0;
+
+    unless ($node->is_collection) {
+        $self->_process_flow_scalar($parent, $node, $block_indent);
+        return;
+    }
+    if ($parent->{type} eq 'MAP' and $node->{index} % 2) {
+        return;
+    }
     my $lines = $self->{lines};
-    my $col = $node->indent;
-    my $lastcol = $parent->indent;
-    my $realindent = $col - $lastcol;
-    my $startline = $node->line;
-    my $endline = $node->end->{line};
+    my $startline = $node->start->{line};
+    my $end = $node->end;
+    my $endline = $end->{line};
     if ($flow == 1 and $self->cfg->trimtrailing) {
         $self->_trim($startline, $endline);
+    }
+
+    my $before = substr($lines->[ $startline ], 0, $node->start->{column});
+    if ($before =~ tr/ \t//c) {
+        $startline++;
+    }
+    my @lines = ($startline .. $node->open->{end}->{line});
+    my $before_end = substr($lines->[ $endline ], 0, $end->{column} - 1);
+    unless ($before_end =~ tr/ \t//c) {
+        push @lines, $endline;
+    }
+    for my $i (@lines) {
+        my $new_spaces = ' ' x $block_indent;
+        $lines->[ $i ] =~ s/^([ \t]*)/$new_spaces/;
+        my $old = length $1;
+        $node->_fix_flow_indent(line => $i, diff => $block_indent - $old);
+    }
+
+    for my $c (@{ $node->{children} }) {
+        $self->_process_flow($node, $c, $block_indent + $self->cfg->indent);
+    }
+}
+
+sub _process_flow_scalar($self, $parent, $node, $block_indent) {
+    if ($node->empty_scalar) {
+        return;
+    }
+    my $startline = $node->line;
+    my $lines = $self->{lines};
+    my $line = $lines->[ $startline ];
+    my $col = $node->start->{column};
+    my $before = substr($line, 0, $col);
+    if ($before =~ tr/ \t//c) {
+        $startline++;
+    }
+    my $endline = $node->end->{line};
+    for my $i ($startline .. $endline) {
+        my $line = $lines->[ $i ];
+        my $new_spaces = ' ' x $block_indent;
+        $line =~ s/^([ \t]*)/$new_spaces/;
+        my $old = length $1;
+        $node->_fix_flow_indent(line => $i, diff => $block_indent - $old);
+        $lines->[ $i ] = $line;
     }
 }
 
