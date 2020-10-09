@@ -20,11 +20,14 @@ my @configs = map {
 } (0 .. 3);
 
 $|++;
+my $url = 'https://github.com/yaml/yaml-test-suite/blob/main/src';
 my %types = (
     indent => {
         configs => [0 .. 3],
     },
 );
+
+taglist();
 
 for my $type (sort keys %types) {
     my $datadir = "$Bin/generated/$type";
@@ -32,6 +35,34 @@ for my $type (sort keys %types) {
     my @ids = sort grep { m/^[A-Z0-9]{4}$/ } readdir $dh;
     closedir $dh;
     html($type, \@ids, [0 .. 3]);
+}
+
+sub taglist() {
+    my $file = "$Bin/generated/tags.yaml";
+    open my $fh, '<encoding(UTF-8)', $file or die $!;
+    my $yaml = do { local $/; <$fh> };
+    close $fh;
+    # oops - YAML::PP 0.026 produces a trailing space in flow collections
+    $yaml =~ s/ +$//mg;
+
+    my $highlighted = YAML::Tidy->highlight($yaml, 'html');
+    $highlighted =~ s{<span class="(?:default|singlequoted)">'?([0-9A-Z]{4})'?</span>}
+                     {<a href="$url/$1.yaml">$1</a>}g;
+
+    my $html = <<"EOM";
+<html>
+<head>
+<title>YAML Tidy Examples - Tag List</title>
+<link rel="stylesheet" type="text/css" href="css/main.css">
+<link rel="stylesheet" type="text/css" href="css/yaml.css">
+<body>
+<pre class="taglist">$highlighted</pre>
+</body>
+</html>
+EOM
+    open $fh, '>:encoding(UTF-8)', "$Bin/../../etc/html/taglist.html";
+    print $fh $html;
+    close $fh;
 }
 
 sub html($type, $ids, $configs) {

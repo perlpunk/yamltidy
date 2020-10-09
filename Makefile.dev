@@ -26,6 +26,8 @@ testv:
 
 generate:
 	perl etc/utils/generate.pl
+analyze:
+	perl etc/utils/analyze-tests.pl
 highlight:
 	perl etc/utils/html.pl
 
@@ -44,7 +46,7 @@ gh-pages-commit: gh-pages
 gh-pages-push: gh-pages
 	cd gh-pages && git push
 
-gh-pages-generate: generate highlight gh-pages-copy
+gh-pages-generate: analyze generate highlight gh-pages-copy
 
 gh-pages-copy:
 	rm -r gh-pages/*

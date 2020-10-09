@@ -5,6 +5,7 @@
 /yts/
 /etc/utils/generated/
 /etc/html/indent.html
+/etc/html/taglist.html
 /YAML-Tidy-*
 /.build/
 /etc/docker/perl5/
