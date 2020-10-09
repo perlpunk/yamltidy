@@ -3,8 +3,8 @@
 /cover_db/
 /gh-pages/
 /yts/
-/utils/generated/
-/html/indent.html
+/etc/utils/generated/
+/etc/html/indent.html
 /YAML-Tidy-*
 /.build/
-/etc/perl5/
+/etc/docker/perl5/
