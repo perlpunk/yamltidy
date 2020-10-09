@@ -1,6 +1,16 @@
 body {
     font-family: Arial;
 }
+a {
+    color: blue;
+    text-decoration: none;
+}
+a:hover {
+    background-color: #ccc;
+}
+pre.taglist a {
+    color: #555;
+}
 table.highlight {
     border: 1px solid #bbb;
     border-collapse: collapse;
