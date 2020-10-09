@@ -25,9 +25,9 @@ testv:
 	prove -lrv t
 
 generate:
-	perl -Ilib utils/generate.pl
+	perl etc/utils/generate.pl
 highlight:
-	perl -Ilib utils/highlight.pl
+	perl etc/utils/html.pl
 
 gh-pages:
 	git worktree add gh-pages gh-pages
@@ -44,18 +44,20 @@ gh-pages-commit: gh-pages
 gh-pages-push: gh-pages
 	cd gh-pages && git push
 
-gh-pages-generate: generate highlight
+gh-pages-generate: generate highlight gh-pages-copy
+
+gh-pages-copy:
 	rm -r gh-pages/*
-	cp -r html/* gh-pages/
+	cp -r etc/html/* gh-pages/
 
 docker-base:
-	cd etc && docker build -t yamltidy-base -f Dockerfile.base .
+	cd etc/docker && docker build -t yamltidy-base -f Dockerfile.base .
 
 docker-build:
-	rm -rf etc/perl5
-	mkdir etc/perl5
-	cd etc && docker run -it --rm --user $$(id -u) -v$(PWD)/etc/perl5:/tmp/yamltidy  yamltidy-base /install-yamltidy.sh
+	rm -rf etc/docker/perl5
+	mkdir etc/docker/perl5
+	cd etc/docker && docker run -it --rm --user $$(id -u) -v$(PWD)/etc/docker/perl5:/tmp/yamltidy  yamltidy-base /install-yamltidy.sh
 
 docker:
-	cd etc && docker build -t perlpunk/yamltidy .
+	cd etc/docker && docker build -t perlpunk/yamltidy .
 

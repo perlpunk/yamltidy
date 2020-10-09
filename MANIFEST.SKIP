@@ -6,7 +6,5 @@
 ^nytprof
 ^nytprof.out
 ^gh-pages
-^utils/generated
-^html/
 ^Makefile.dev
-^etc/perl5
+^etc/
