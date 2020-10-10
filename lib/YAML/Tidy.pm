@@ -38,7 +38,11 @@ sub tidy($self, $yaml) {
     my @lines = split /\n/, $yaml, -1;
     my $tree = $self->_tree($yaml, \@lines);
     $self->{lines} = \@lines;
-    $self->_process(undef, $tree);
+    if (@lines) {
+        my $from = 0;
+        $self->_trimspaces(\$from, $tree) if $self->cfg->trimtrailing;
+        $self->_process(undef, $tree);
+    }
     $yaml = join "\n", @{ $self->{lines} };
     return $yaml;
 }
@@ -67,34 +71,6 @@ sub _process($self, $parent, $node) {
     my $before = substr($line, 0, $col);
 
     my $start = $node->start;
-    if ($trimtrailing) {
-        my $pre = $parent ? $parent->pre($node) : undef;
-        if ($pre) {
-            if ($pre->{line} <= $start->{line}) {
-                my ($from, $to) = ($pre->{line}, $start->{line});
-                $self->_trim($from, $to);
-            }
-        }
-        if ($level < 1 and $type ne '') {
-            # trim trailing spaces at the end of the node
-            my $last = $node->{children}->[-1];
-            my $from;
-            if ($last) {
-                my $end = $last->closestart;
-                $from = $end->{line} + 1;
-            }
-            else {
-                # empty node
-                $from = $node->open->{end}->{line};
-            }
-
-            my $end2 = $node->closestart;
-            my $to = $end2->{line};
-            if ($from <= $to) {
-                $self->_trim($from, $to);
-            }
-        }
-    }
 
     if ($node->is_collection) {
         my $ignore_firstlevel = ($self->{partial} and $level == 0);
@@ -177,24 +153,21 @@ sub _process($self, $parent, $node) {
             $skipfirst = 1;
         }
         my $realstart = $scalar->[0];
-        if ($trimtrailing) {
-            $self->_trim($startline, $realstart);
-        }
         unless ($ignore_firstlevel) {
-        for my $i ($startline .. $realstart) {
-            my $line = $lines->[ $i ];
-            if ($i == $startline and $col > 0) {
-                my $before = substr($line, 0, $col);
-                if ($before =~ tr/ //c) {
+            for my $i ($startline .. $realstart) {
+                my $line = $lines->[ $i ];
+                if ($i == $startline and $col > 0) {
+                    my $before = substr($line, 0, $col);
+                    if ($before =~ tr/ //c) {
+                        next;
+                    }
+                }
+                unless ($line =~ tr/ //c) {
                     next;
                 }
+                $line =~ s/^ */$new_spaces/;
+                $lines->[ $i] = $line;
             }
-            unless ($line =~ tr/ //c) {
-                next;
-            }
-            $line =~ s/^ */$new_spaces/;
-            $lines->[ $i] = $line;
-        }
         }
         # leave alone explicitly indented block scalars
         return if $explicit_indent;
@@ -271,9 +244,6 @@ sub _process($self, $parent, $node) {
             $startline++ if $skipfirst;
             $endline = $node->close->{line};
             return if $startline >= @$lines;
-            if ($trimtrailing) {
-                $self->_trim($startline, $endline);
-            }
             my $line = $lines->[ $startline ];
             my ($sp) = $line =~ m/^( *)/;
             if ($ignore_firstlevel) {
@@ -290,6 +260,27 @@ sub _process($self, $parent, $node) {
                 }
             }
             @$lines[$startline .. $endline ] = @slice;
+        }
+    }
+}
+
+sub _trimspaces($self, $from, $node) {
+    if ($node->is_collection) {
+        my $level = $node->{level};
+        for my $c (@{ $node->{children} }) {
+            $self->_trimspaces($from, $c);
+        }
+        if ($level == -1) {
+            $self->_trim($$from, $node->end->{line});
+        }
+    }
+    elsif (defined $node->{style}) {
+        # Only spaces in block scalars must be left alone
+        if ($node->{style} eq YAML_LITERAL_SCALAR_STYLE
+            or $node->{style} eq YAML_FOLDED_SCALAR_STYLE) {
+            my ($anchor, $tag, $comments, $scalar) = $self->_find_scalar_start($node);
+            $self->_trim($$from, $scalar->[0]);
+            $$from = $node->end->{line}
         }
     }
 }
@@ -312,9 +303,6 @@ sub _process_flow($self, $parent, $node, $block_indent = undef) {
     my $startline = $node->start->{line};
     my $end = $node->end;
     my $endline = $end->{line};
-    if ($flow == 1 and $self->cfg->trimtrailing) {
-        $self->_trim($startline, $endline);
-    }
 
     my $before = substr($lines->[ $startline ], 0, $node->start->{column});
     if ($before =~ tr/ \t//c) {
