@@ -14,18 +14,18 @@ sub new($class, %args) {
     return bless $self, $class;
 }
 
-sub pre($self, $node) {
-    my $index = $node->{index} - 1;
-    my $end;
-    if ($index < 1) {
-        $end = $self->open->{end};
-    }
-    else {
-        my $previous = $self->{children}->[ $index -1 ];
-        $end = $previous->end;
-    }
-    return $end;
-}
+#sub pre($self, $node) {
+#    my $index = $node->{index} - 1;
+#    my $end;
+#    if ($index < 1) {
+#        $end = $self->open->{end};
+#    }
+#    else {
+#        my $previous = $self->{children}->[ $index -1 ];
+#        $end = $previous->end;
+#    }
+#    return $end;
+#}
 
 
 package YAML::Tidy::Node::Collection;
@@ -53,9 +53,9 @@ sub end($self) {
     return $self->close->{end};
 }
 
-sub closestart($self) {
-    return $self->close->{start};
-}
+#sub closestart($self) {
+#    return $self->close->{start};
+#}
 
 sub realendline($self) {
     $self->close->{end}->{line} - 1;
@@ -131,9 +131,9 @@ sub end($self) {
     return $self->close;
 }
 
-sub closestart($self) {
-    return $self->close;
-}
+#sub closestart($self) {
+#    return $self->close;
+#}
 
 sub realendline($self) {
     my $end = $self->close;
