@@ -102,6 +102,27 @@ sub _fix_flow_indent($self, %args) {
     }
 }
 
+sub fix_lines($self, $startline, $diff) {
+    my $start = $self->open;
+#    warn __PACKAGE__.':'.__LINE__.": ======== fix_lines $startline $diff\n";
+    my $end = $self->close;
+    for my $pos ($start->{start}, $start->{end}) {
+        if ($pos->{line} >= $startline) {
+            $pos->{line} += $diff;
+        }
+    }
+    for my $pos ($end->{start}, $end->{end}) {
+        if ($pos->{column} == 0 and $pos->{line} == $startline) {
+        }
+        elsif ($pos->{line} >= $startline) {
+            $pos->{line} += $diff;
+        }
+    }
+    for my $c (@{ $self->{children} }) {
+        $c->fix_lines($startline, $diff);
+    }
+}
+
 package YAML::Tidy::Node::Scalar;
 use YAML::PP::Common qw/
     YAML_PLAIN_SCALAR_STYLE YAML_SINGLE_QUOTED_SCALAR_STYLE
@@ -183,6 +204,22 @@ sub _fix_flow_indent($self, %args) {
     for my $pos ($self->open, $self->close) {
         if ($pos->{line} == $line) {
             $pos->{column} += $diff;
+        }
+    }
+}
+
+sub fix_lines($self, $startline, $diff) {
+    return if $self->empty_scalar and $self->open->{column} == 0;
+    for my $pos ($self->open) {
+        if ($pos->{line} >= $startline) {
+            $pos->{line} += $diff;
+        }
+    }
+    for my $pos ($self->close) {
+        if ($pos->{column} == 0 and $pos->{line} == $startline) {
+        }
+        elsif ($pos->{line} >= $startline) {
+            $pos->{line} += $diff;
         }
     }
 }

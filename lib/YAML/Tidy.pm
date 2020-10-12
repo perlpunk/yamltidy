@@ -1,6 +1,7 @@
 # ABSTRACT: Tidy YAML files
 use strict;
-use warnings;
+use warnings FATAL => qw/ substr /;
+
 use v5.20;
 use experimental qw/ signatures /;
 package YAML::Tidy;
@@ -37,6 +38,7 @@ sub tidy($self, $yaml) {
     local $Data::Dumper::Sortkeys = 1;
     my @lines = split /\n/, $yaml, -1;
     my $tree = $self->_tree($yaml, \@lines);
+    $self->{tree} = $tree;
     $self->{lines} = \@lines;
     if (@lines) {
         my $from = 0;
@@ -57,6 +59,53 @@ sub _process($self, $parent, $node) {
     my $indent = $self->cfg->indent;
     my $lines = $self->{lines};
     return unless @$lines;
+
+    if ($level == -1 and $type eq 'DOC') {
+        my $start = $node->start;
+        if ($node->open->{implicit} and $self->cfg->addheader) {
+            # add ---
+            splice @$lines, $start->{line}, 0, '---';
+            $self->{tree}->fix_lines($start->{line}, +1);
+            $node->start->{line}--;
+            $node->open->{implicit} = 0;
+        }
+        if ($node->{index} == 1 and not $node->open->{implicit} and $self->cfg->removeheader) {
+            # remove first ---
+            my $child = $node->{children}->[0];
+            if (not $child->is_collection and $child->empty_scalar) {
+            }
+            else {
+            my $startline = $start->{line};
+            my $line = $lines->[ $startline ];
+            if ($line =~ m/^---[ \t]*$/) {
+                splice @$lines, $startline, 1;
+                $self->{tree}->fix_lines($start->{line}, -1);
+                $node->start->{line}++;
+                $start = $node->start;
+            }
+            else {
+                $line =~ s/^---[ \t]+(?=#)//;
+                $lines->[ $startline ] = $line;
+            }
+            }
+        }
+        if ($node->close->{implicit} and $self->cfg->addfooter) {
+            # add ...
+            my $close = $node->close->{start};
+#            warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$close], ['close']);
+            splice @$lines, $close->{line}, 0, '...';
+#            warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$lines], ['lines']);
+            $self->{tree}->fix_lines($close->{line}, +1);
+            $close->{line}--;
+            $close->{column} = 3;
+            $close->{implicit} = 0;
+            $close = $node->close;
+#            warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$close], ['close']);
+        }
+    }
+    my $start = $node->start;
+
+
     my $indenttoplevelscalar = 1;
     my $trimtrailing = $self->cfg->trimtrailing;
 
@@ -64,13 +113,14 @@ sub _process($self, $parent, $node) {
     my $lastcol = $parent ? $parent->indent : -99;
     my $realindent = $col - $lastcol;
     my $startline = $node->line;
+#    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$type], ['type']);
+#    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$startline], ['startline']);
     my $line = $lines->[ $startline ];
     unless (defined $line) {
         die "Line $startline not found";
     }
     my $before = substr($line, 0, $col);
 
-    my $start = $node->start;
 
     if ($node->is_collection) {
         my $ignore_firstlevel = ($self->{partial} and $level == 0);
@@ -350,7 +400,10 @@ sub _process_flow_scalar($self, $parent, $node, $block_indent) {
 
 sub _find_scalar_start($self, $node) {
     my $lines = $self->{lines};
+#    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$node], ['node']);
+#    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$lines], ['lines']);
     my $from = $node->line;
+#    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$from], ['from']);
     my $to = $node->realendline;
     my $col = $node->indent;
     my $end = $node->end;
@@ -366,6 +419,7 @@ sub _find_scalar_start($self, $node) {
     my $scalar;
     for my $i (0 .. $#slice) {
         my $line = $slice[ $i ];
+#        warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$line], ['line']);
         my $f = $i == 0 ? $col : 0;
         my $t = $i == $#slice ? ($endcol || length($line)) : length($line);
         my $part = substr($line, $f, $t - $f);
@@ -428,7 +482,9 @@ sub _fix_indent($self, $node, $fix, $offset) {
     my $startline = $node->line;
     my $lines = $self->{lines};
     my $endline = $node->realendline;
+#    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$endline], ['endline']);
     my @slice = @$lines[$startline .. $endline];
+#    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\@slice], ['slice']);
     for my $line (@slice) {
         next unless length $line;
         if ($fix < 0) {

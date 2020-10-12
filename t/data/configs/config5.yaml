@@ -1,0 +1,7 @@
+---
+v: v0.1
+indentation:
+  spaces: 2
+trailing-spaces: fix
+header: true
+footer: true
