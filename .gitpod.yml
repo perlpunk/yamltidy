@@ -1,7 +1,7 @@
 ---
 tasks:
   - init: |
-      sudo apt-get install cpanminus
+      sudo apt-get -y install cpanminus
       cpanm -n -l ~/perl5 YAML::PP YAML::LibYAML::API
     command: |
       echo "Hello!"
