@@ -3,5 +3,7 @@ tasks:
   - init: |
       sudo apt-get -y install cpanminus
       cpanm -n -l ~/perl5 YAML::PP YAML::LibYAML::API
+      export PERL5LIB=~/perl5/lib/perl5
+      PATH=~/perl5/bin:$PATH
     command: |
       echo "Hello!"
