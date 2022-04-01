@@ -118,7 +118,7 @@ The best output for 4 spaces is subject to discussion for a lot of test cases.
 ### Mappings for vim
 
 
-    :noremap <leader>yt ggvG:!yamltidy -<CR>
+    :noremap <leader>yt :%!yamltidy -<CR>
 
 Type `<leader>yt` to tidy the whole buffer
 
