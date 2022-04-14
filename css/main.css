@@ -22,8 +22,7 @@ table.highlight tr th, table.highlight tr td {
     vertical-align: top;
 }
 table.highlight tr td.yaml {
-    max-width: 17em;
-    overflow-x: auto;
+    max-width: 20em;
     font-size: 93%;
 }
 table.highlight tr td.id {
@@ -41,7 +40,9 @@ table.highlight tr th {
     border-bottom: 3px solid #bbb;
 }
 pre {
+    max-width: 20em;
     padding: 2px;
+    overflow-x: auto;
 }
 pre.error {
     border: 1px solid red;
