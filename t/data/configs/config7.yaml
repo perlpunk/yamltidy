@@ -3,5 +3,6 @@ v: v0.1
 indentation:
   spaces: 2
 trailing-spaces: fix
+scalar-style: { default }
 header: true
 footer: false

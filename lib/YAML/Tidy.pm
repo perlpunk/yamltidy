@@ -129,14 +129,16 @@ sub _process($self, $parent, $node) {
     }
     else {
         my $ignore_firstlevel = ($self->partial and $level == 0);
-        my $multiline = $node->multiline;
-        if ($parent->{type} eq 'MAP' and ($node->{index} % 2 and not $multiline)) {
-            return;
-        }
         if ($node->empty_scalar) {
             return;
         }
         if ($node->{name} eq 'alias_event') {
+            return;
+        }
+        if ($parent->{type} eq 'MAP' and ($node->{index} % 2 and not $node->multiline)) {
+            if (not $node->{tag} and not defined $node->{anchor}) {
+                $self->_replace_quoting($node);
+            }
             return;
         }
         my $new_indent = $parent->indent + $indent;
@@ -153,7 +155,12 @@ sub _process($self, $parent, $node) {
         my $before = substr($line, 0, $col);
         if ($before =~ tr/ \t//c) {
             # same line as key
-            $before =~ s/[\t ]+$/ /;
+            my $remove = 0;
+            $before =~ s/([\t ]+)$/ / and $remove = -1 + length $1;
+            $node->open->{column} -= $remove;
+            unless ($node->multiline) {
+                $node->close->{column} -= $remove;
+            }
             $line = $before . substr($line, $col);
             $lines->[ $startline ] = $line;
             $skipfirst = 1;
@@ -171,7 +178,14 @@ sub _process($self, $parent, $node) {
                 unless ($line =~ tr/ //c) {
                     next;
                 }
-                $line =~ s/^ */$new_spaces/;
+                my $remove = 0;
+                $line =~ s/^( *)/$new_spaces/ and $remove = length($1) - length($new_spaces);
+                if ($i == $startline) {
+                    $node->open->{column} -= $remove;
+                    unless ($node->multiline) {
+                        $node->close->{column} -= $remove;
+                    }
+                }
                 $lines->[ $i] = $line;
             }
         }
@@ -252,27 +266,104 @@ sub _process($self, $parent, $node) {
             if ($node->empty_scalar) {
                 return;
             }
-            $startline++ if $skipfirst;
-            $endline = $node->close->{line};
-            return if $startline >= @$lines;
-            my $line = $lines->[ $startline ];
-            my ($sp) = $line =~ m/^( *)/;
-            if ($ignore_firstlevel) {
-                $new_indent = length $sp;
-                $new_spaces = ' ' x $new_indent;
-            }
-            my @slice = @$lines[$startline .. $endline ];
-            if ($level == 0 and not $indenttoplevelscalar) {
-                $new_spaces = ' ' x ($new_indent - $indent);
-            }
-            for my $line (@slice) {
-                if ($line =~ tr/ //c) {
-                    $line =~ s/^[\t ]*/$new_spaces/;
+            my $remove = 0;
+            if (not $skipfirst or $node->multiline) {
+                my $startline = $startline;
+                $startline++ if $skipfirst;
+                $endline = $node->close->{line};
+                return if $startline >= @$lines;
+                my $line = $lines->[ $startline ];
+                my ($sp) = $line =~ m/^( *)/;
+                if ($ignore_firstlevel) {
+                    $new_indent = length $sp;
+                    $new_spaces = ' ' x $new_indent;
                 }
+                my @slice = @$lines[$startline .. $endline ];
+                if ($level == 0 and not $indenttoplevelscalar) {
+                    $new_spaces = ' ' x ($new_indent - $indent);
+                }
+                for my $line (@slice) {
+                    if ($line =~ tr/ //c) {
+                        $line =~ s/^([\t ]*)/$new_spaces/
+                            and $remove = length($1) - length($new_spaces);
+                    }
+                }
+                $node->close->{column} -= $remove;
+                @$lines[$startline .. $endline ] = @slice;
             }
-            @$lines[$startline .. $endline ] = @slice;
+            if (not $node->multiline and not $node->{tag} and not defined $node->{anchor}) {
+                $self->_replace_quoting($node);
+            }
         }
     }
+}
+
+my $RE_INT_CORE = qr{^([+-]?(?:[0-9]+))$};
+my $RE_FLOAT_CORE = qr{^([+-]?(?:\.[0-9]+|[0-9]+(?:\.[0-9]*)?)(?:[eE][+-]?[0-9]+)?)$};
+my $RE_INT_OCTAL = qr{^0o([0-7]+)$};
+my $RE_INT_HEX = qr{^0x([0-9a-fA-F]+)$};
+my @null = (qw/ null NULL Null ~ /, '');
+my @true = qw/ true TRUE True /;
+my @false = qw/ false FALSE False /;
+my @inf = qw/ .inf .Inf .INF +.inf +.Inf +.INF  -.inf -.Inf -.INF /;
+my @nan = qw/ .nan .NaN .NAN /;
+my @re = ($RE_INT_CORE, $RE_INT_OCTAL, $RE_INT_HEX,  $RE_FLOAT_CORE);
+my $re = join '|', @re;
+my @all = (@null, @true, @false, @inf, @nan);
+
+sub _replace_quoting($self, $node) {
+    # TODO nodes with tags or anchors
+    my $default_style = $self->cfg->default_scalar_style;
+    # single line flow scalars
+    if ($node->{style} != $default_style) {
+        my ($changed, $new_string) = $self->_change_style($node, $default_style);
+        if ($changed) {
+            my $lines = $self->{lines};
+            my $line = $lines->[ $node->open->{line} ];
+            my ($from, $to) = ($node->open->{column}, $node->close->{column});
+            substr($line, $from, $to - $from, $new_string);
+            my $diff = length($new_string) - ($to - $from);
+            if ($diff) {
+                $self->{tree}->_move_columns($node->open->{line}, $node->close->{column} + 1, $diff);
+            }
+            $node->close->{column} += $diff;
+            $lines->[ $node->open->{line} ] = $line;
+        }
+    }
+}
+
+sub _change_style($self, $node, $style) {
+    my $value = $node->{value};
+    if (grep { $_ eq $value } @all or $value =~ m/($re)/ and $node->{style} == YAML_PLAIN_SCALAR_STYLE) {
+        # leave me alone
+        return (0);
+    }
+    else {
+        my $emit = $self->_emit_value($value, $style);
+        chomp $emit;
+        return (0) if $emit =~ tr/\n//;
+        my $first = substr($emit, 0, 1);
+        my $new_style =
+            $first eq "'" ? YAML_SINGLE_QUOTED_SCALAR_STYLE
+            : $first eq '"' ? YAML_DOUBLE_QUOTED_SCALAR_STYLE
+            : YAML_PLAIN_SCALAR_STYLE;
+        if ($new_style eq $style) {
+            return (1, $emit);
+        }
+    }
+    return (0);
+}
+
+sub _emit_value($self, $value, $style) {
+    my $options = {};
+    my $events = [
+        { name => 'stream_start_event' },
+        { name => 'document_start_event', implicit => 1 },
+        { name => 'scalar_event', style => $style, value => $value },
+        { name => 'document_end_event', implicit => 1 },
+        { name => 'stream_end_event' },
+    ];
+    return YAML::LibYAML::API::XS::emit_string_events($events, $options);
 }
 
 sub _process_doc($self, $parent, $node) {
@@ -426,6 +517,7 @@ sub _process_flow_scalar($self, $parent, $node, $block_indent) {
 }
 
 sub _find_scalar_start($self, $node) {
+#    warn __PACKAGE__.':'.__LINE__.": ========= _find_scalar_start $node\n";
     my $lines = $self->{lines};
     my $from = $node->line;
     my $to = $node->realendline;
@@ -481,6 +573,7 @@ sub _find_scalar_start($self, $node) {
         }
     }
     $scalar ||= [$to, length($slice[ -1 ]), ''];
+#    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$scalar], ['scalar']);
     return ($anchor, $tag, \@comments, $scalar);
 }
 

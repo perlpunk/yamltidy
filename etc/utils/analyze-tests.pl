@@ -43,7 +43,7 @@ use constant {
 };
 
 my $ts = "$Bin/../../yts";
-my $datadir = "$Bin/generated";
+my $datadir = "$Bin/..";
 
 my @skip;
 open my $fh, '<', "$Bin/../../t/libyaml.skip";

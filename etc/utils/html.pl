@@ -17,7 +17,7 @@ my @configs = map {
     close $fh;
     my $html = YAML::Tidy->highlight($yaml, 'html');
     $html;
-} (0 .. 17);
+} (0 .. 20);
 
 $|++;
 my $url = 'https://github.com/yaml/yaml-test-suite/blob/main/src';
@@ -34,6 +34,9 @@ my %types = (
     seqindent => {
         configs => [14 .. 17],
     },
+    quote => {
+        configs => [18 .. 20],
+    },
 );
 
 taglist();
@@ -49,7 +52,7 @@ for my $type (sort keys %types) {
 }
 
 sub taglist() {
-    my $file = "$Bin/generated/tags.yaml";
+    my $file = "$Bin/../tags.yaml";
     open my $fh, '<encoding(UTF-8)', $file or die $!;
     my $yaml = do { local $/; <$fh> };
     close $fh;

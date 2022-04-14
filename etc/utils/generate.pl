@@ -52,12 +52,16 @@ my %types = (
         ids => \@valid,
         configs => [14 .. 17],
     },
+    quote => {
+        ids => \@valid,
+        configs => [18 .. 20],
+    },
 );
 
 my @yt = map {
     my $cfg = YAML::Tidy::Config->new( configfile => "$Bin/../../t/data/configs/config$_.yaml" );
     YAML::Tidy->new( cfg => $cfg );
-} (0 .. 17);
+} (0 .. 20);
 
 for my $type (sort keys %types) {
     my $def = $types{ $type };

@@ -24,12 +24,14 @@ testp:
 testv:
 	prove -lrv t
 
-generate:
-	perl etc/utils/generate.pl
 analyze:
 	perl etc/utils/analyze-tests.pl
+generate:
+	perl etc/utils/generate.pl
 highlight:
 	perl etc/utils/html.pl
+clean-generated:
+	rm -r etc/utils/generated
 
 gh-pages:
 	git worktree add gh-pages gh-pages

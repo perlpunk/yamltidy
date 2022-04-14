@@ -29,9 +29,13 @@ sub _stringify($self, @args) {
             $close->{end}->{line}, $close->{end}->{column},
     }
     else {
-        $str .= sprintf " <L %d C %d> - <L %d C %d>",
+        my $val = substr($self->{value}, 0, 20);
+        local $Data::Dumper::Useqq = 1;
+        $val = Data::Dumper->Dump([$val], ['val']);
+        chomp $val;
+        $str .= sprintf " <L %d C %d> - <L %d C %d> | %s",
             $self->start->{line}, $self->start->{column},
-            $self->end->{line}, $self->end->{column},
+            $self->end->{line}, $self->end->{column}, $val
     }
     return $str;
 }
@@ -88,6 +92,23 @@ sub fix_node_indent($self, $fix) {
         $c->fix_node_indent($fix);
     }
 }
+
+sub _move_columns($self, $line, $offset, $fix) {
+#    warn __PACKAGE__.':'.__LINE__.": MOVE $self $line $offset $fix\n";
+    return if $self->end->{line} < $line;
+    return if $self->start->{line} > $line;
+    for my $e ($self->open, $self->close) {
+        for my $pos (@$e{qw/ start end /}) {
+            if ($pos->{line} == $line and $pos->{column} >= $offset) {
+                $pos->{column} += $fix;
+            }
+        }
+    }
+    for my $c (@{ $self->{children} }) {
+        $c->_move_columns($line, $offset, $fix);
+    }
+}
+
 
 sub _fix_flow_indent($self, %args) {
     my $line = $args{line};
@@ -192,6 +213,18 @@ sub fix_node_indent($self, $fix) {
     for my $pos ($self->open, $self->close) {
         $pos->{column} += $fix;
     }
+}
+
+sub _move_columns($self, $line, $offset, $fix) {
+#    warn __PACKAGE__.':'.__LINE__.": MOVE $self $line $offset $fix\n";
+    return if $self->end->{line} < $line;
+    return if $self->start->{line} > $line;
+    for my $pos ($self->open, $self->close) {
+            if ($pos->{line} == $line and $pos->{column} >= $offset) {
+                $pos->{column} += $fix;
+            }
+    }
+#    warn __PACKAGE__.':'.__LINE__.": MOVE $self $line $offset $fix\n";
 }
 
 sub _fix_flow_indent($self, %args) {

@@ -7,4 +7,5 @@
 ^nytprof.out
 ^gh-pages
 ^Makefile.dev
-^etc/
+^etc/utils
+^etc/html

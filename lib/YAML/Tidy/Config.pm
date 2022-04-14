@@ -8,6 +8,19 @@ package YAML::Tidy::Config;
 our $VERSION = '0.000'; # VERSION
 
 use Cwd;
+use YAML::PP::Common qw/
+    YAML_PLAIN_SCALAR_STYLE YAML_SINGLE_QUOTED_SCALAR_STYLE
+    YAML_DOUBLE_QUOTED_SCALAR_STYLE YAML_LITERAL_SCALAR_STYLE
+    YAML_FOLDED_SCALAR_STYLE
+    YAML_FLOW_SEQUENCE_STYLE YAML_FLOW_MAPPING_STYLE
+/;
+my %stylemap = (
+    plain => YAML_PLAIN_SCALAR_STYLE,
+    single => YAML_SINGLE_QUOTED_SCALAR_STYLE,
+    double => YAML_DOUBLE_QUOTED_SCALAR_STYLE,
+#    literal => YAML_LITERAL_SCALAR_STYLE,
+#    folded => YAML_FOLDED_SCALAR_STYLE,
+);
 
 sub new($class, %args) {
     my $yaml;
@@ -59,6 +72,11 @@ sub new($class, %args) {
     else {
         $trimtrailing = 0;
     }
+    my $scalarstyle = { default => YAML_PLAIN_SCALAR_STYLE };
+    if (my $scalar = delete $cfg->{'scalar-style'}) {
+        my $default = $scalar->{default};
+        $scalarstyle->{default} = $default ? $stylemap{ $default } : undef;
+    }
 
     delete @args{qw/ configfile configdata /};
     if (my @unknown = keys %args) {
@@ -70,6 +88,7 @@ sub new($class, %args) {
         trimtrailing => $trimtrailing,
         header => delete $cfg->{header} // 'keep',
         footer => delete $cfg->{footer} // 'keep',
+        scalar_style => $scalarstyle,
     }, $class;
     return $self;
 }
@@ -117,6 +136,10 @@ sub removefooter($self) {
     return $footer ? 0 : 1;
 }
 
+sub default_scalar_style($self) {
+    return $self->{scalar_style}->{default};
+}
+
 sub standardcfg {
     my $yaml = <<'EOM';
 ---
@@ -126,6 +149,8 @@ indentation:
   block-sequence-in-mapping: 0
 trailing-spaces: fix
 header: true
+scalar-style:
+    default: plain
 EOM
 }
 

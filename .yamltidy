@@ -5,3 +5,5 @@ indentation:
   block-sequence-in-mapping: 0
 trailing-spaces: fix
 header: true
+scalar-style:
+  default: plain

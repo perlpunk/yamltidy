@@ -10,7 +10,14 @@ use Test::Warnings qw/ :report_warnings /;
 use FindBin '$Bin';
 use YAML::Tidy;
 
-my $taglist = YAML::PP::LoadFile("$Bin/../etc//tags.yaml");
+use YAML::PP::Common qw/
+    YAML_PLAIN_SCALAR_STYLE YAML_SINGLE_QUOTED_SCALAR_STYLE
+    YAML_DOUBLE_QUOTED_SCALAR_STYLE YAML_LITERAL_SCALAR_STYLE
+    YAML_FOLDED_SCALAR_STYLE
+    YAML_FLOW_SEQUENCE_STYLE YAML_FLOW_MAPPING_STYLE
+/;
+
+my $taglist = YAML::PP::LoadFile("$Bin/../etc/tags.yaml");
 my $ts = "$Bin/../yts";
 opendir my $dh, $ts or die $!;
 my @ids = grep { m/^[A-Z0-9]{4}$/ } readdir $dh;
@@ -34,25 +41,32 @@ my %skip;
 @skip{ @skip } = (1) x @skip;
 
 my @valid;
+my @plain = @{ $taglist->{plain} };
+my @single = @{ $taglist->{single} };
+my @double = @{ $taglist->{double} };
+my %scalars;
+@scalars{ (@plain, @single, @double) } = ();
 for my $id (sort @ids) {
     if (-e "$ts/$id/error") {
         next;
     }
-    next unless grep { $_ eq $id } @{ $taglist->{'block-sequence'} };
+    next unless exists $scalars{ $id };
     next if $skip{ $id };
     push @valid, $id;
 }
 
 #@valid = @valid[0..168];
-#@valid = @valid[17..17];
+#@valid = @valid[0..100];
+my @configs = (0 .. 2);
+#@configs = (0 .. 2);
 
 my @yt = map {
     my $cfg = YAML::Tidy::Config->new( configfile => "$Bin/data/configs/config$_.yaml" );
     YAML::Tidy->new( cfg => $cfg );
-} (14 .. 17);
+} (18 .. 20);
 
 my %failed;
-for my $i (0 .. 3) {
+for my $i (@configs) {
     diag "============= config $i";
     my $yt = $yt[ $i ];
     for my $id (@valid) {
@@ -99,6 +113,9 @@ for my $i (0 .. 3) {
             delete $_->{id};
             delete $_->{level};
             delete $_->{nextline};
+            if ($_->{name} eq 'scalar_event') {
+                delete $_->{style}
+            }
             $_;
         } @$events;
         @previous_events = map {
@@ -107,6 +124,9 @@ for my $i (0 .. 3) {
             delete $_->{id};
             delete $_->{level};
             delete $_->{nextline};
+            if ($_->{name} eq 'scalar_event') {
+                delete $_->{style}
+            }
             $_;
         } @previous_events;
         cmp_deeply(\@events, \@previous_events, "$label - Reparse same events") or do {
