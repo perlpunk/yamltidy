@@ -111,11 +111,8 @@ sub _process($self, $parent, $node) {
             }
             else {
                 if ($parent->{type} eq 'MAP' and not $node->{index} % 2) {
-                    # zero indented sequence
-                    if ($indent == 1) {
-                        $indent = 2;
-                    }
-                    $indent -= 2;
+                    # zero indented sequence?
+                    $indent = $self->cfg->indent_seq_in_map;
                 }
             }
 

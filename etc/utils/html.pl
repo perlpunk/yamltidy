@@ -17,7 +17,7 @@ my @configs = map {
     close $fh;
     my $html = YAML::Tidy->highlight($yaml, 'html');
     $html;
-} (0 .. 12);
+} (0 .. 17);
 
 $|++;
 my $url = 'https://github.com/yaml/yaml-test-suite/blob/main/src';
@@ -30,6 +30,9 @@ my %types = (
     },
     header2 => {
         configs => [9 .. 12],
+    },
+    seqindent => {
+        configs => [14 .. 17],
     },
 );
 

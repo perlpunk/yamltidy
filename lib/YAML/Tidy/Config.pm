@@ -51,6 +51,7 @@ sub new($class, %args) {
     my $indent = delete $cfg->{indentation} || {};
     $indent->{spaces} = $overridespaces if defined $overridespaces;
     $indent->{spaces} //= 2; # TODO support keeping original indent
+    $indent->{'block-sequence-in-mapping'} //= 0;
     my $trimtrailing = $cfg->{'trailing-spaces'} || '';
     if ($trimtrailing eq 'fix') {
         $trimtrailing = 1;
@@ -83,6 +84,9 @@ sub _homedir($class) {
 
 sub indent($self) {
     return $self->{indentation}->{spaces};
+}
+sub indent_seq_in_map($self) {
+    return $self->{indentation}->{'block-sequence-in-mapping'};
 }
 
 sub trimtrailing($self) {
@@ -119,6 +123,7 @@ sub standardcfg {
 v: v0.1
 indentation:
   spaces: 2
+  block-sequence-in-mapping: 0
 trailing-spaces: fix
 header: true
 EOM

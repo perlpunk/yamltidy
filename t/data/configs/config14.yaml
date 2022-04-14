@@ -4,4 +4,3 @@ indentation:
   spaces: 2
   block-sequence-in-mapping: 0
 trailing-spaces: fix
-header: true
