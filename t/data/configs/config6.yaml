@@ -4,3 +4,4 @@ indentation:
   spaces: 2
 trailing-spaces: fix
 header: true
+footer: keep

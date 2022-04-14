@@ -6,6 +6,8 @@
 /etc/utils/generated/
 /etc/html/indent.html
 /etc/html/taglist.html
+/etc/html/header1.html
+/etc/html/header2.html
 /YAML-Tidy-*
 /.build/
 /etc/docker/perl5/

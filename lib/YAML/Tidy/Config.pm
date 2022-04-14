@@ -61,12 +61,14 @@ sub new($class, %args) {
 
     delete @args{qw/ configfile configdata /};
     if (my @unknown = keys %args) {
-        die "Unknown configuration keys: @unknown";
+        die "Unknown configuration parameters: @unknown";
     }
     my $self = bless {
         version => $v,
         indentation => $indent,
         trimtrailing => $trimtrailing,
+        header => delete $cfg->{header} // 'keep',
+        footer => delete $cfg->{footer} // 'keep',
     }, $class;
     return $self;
 }
@@ -87,6 +89,29 @@ sub trimtrailing($self) {
     return $self->{trimtrailing};
 }
 
+sub addheader($self) {
+    my $header = $self->{header};
+    return 0 if $header eq 'keep';
+    return $header ? 1 : 0;
+}
+
+sub addfooter($self) {
+    my $footer = $self->{footer};
+    return 0 if $footer eq 'keep';
+    return $footer ? 1 : 0;
+}
+
+sub removeheader($self) {
+    my $header = $self->{header};
+    return 0 if $header eq 'keep';
+    return $header ? 0 : 1;
+}
+
+sub removefooter($self) {
+    my $footer = $self->{footer};
+    return 0 if $footer eq 'keep';
+    return $footer ? 0 : 1;
+}
 
 sub standardcfg {
     my $yaml = <<'EOM';
@@ -95,6 +120,7 @@ v: v0.1
 indentation:
   spaces: 2
 trailing-spaces: fix
+header: true
 EOM
 }
 

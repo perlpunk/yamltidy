@@ -1,6 +1,7 @@
 # ABSTRACT: Tidy YAML files
 use strict;
-use warnings;
+use warnings FATAL => qw/ substr /;
+
 use v5.20;
 use experimental qw/ signatures /;
 package YAML::Tidy;
@@ -32,23 +33,28 @@ sub new($class, %args) {
 }
 
 sub cfg($self) { $self->{cfg} }
+sub partial($self) { $self->{partial} }
 
 sub tidy($self, $yaml) {
     local $Data::Dumper::Sortkeys = 1;
     my @lines = split /\n/, $yaml, -1;
     my $tree = $self->_tree($yaml, \@lines);
+    $self->{tree} = $tree;
     $self->{lines} = \@lines;
+#    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\@lines], ['lines']);
     if (@lines) {
         my $from = 0;
         $self->_trimspaces(\$from, $tree) if $self->cfg->trimtrailing;
         $self->_process(undef, $tree);
     }
     $yaml = join "\n", @{ $self->{lines} };
+#    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$yaml], ['yaml']);
     return $yaml;
 }
 
 sub _process($self, $parent, $node) {
     my $type = $node->{type} || '';
+#    warn __PACKAGE__.':'.__LINE__.": ======== _process($parent, $node) $type\n";
     if ($node->{flow}) {
         $self->_process_flow($parent, $node);
         return;
@@ -57,6 +63,13 @@ sub _process($self, $parent, $node) {
     my $indent = $self->cfg->indent;
     my $lines = $self->{lines};
     return unless @$lines;
+
+    if ($level == -1 and $type eq 'DOC') {
+        $self->_process_doc($parent, $node);
+    }
+    my $start = $node->start;
+
+
     my $indenttoplevelscalar = 1;
     my $trimtrailing = $self->cfg->trimtrailing;
 
@@ -70,10 +83,9 @@ sub _process($self, $parent, $node) {
     }
     my $before = substr($line, 0, $col);
 
-    my $start = $node->start;
 
     if ($node->is_collection) {
-        my $ignore_firstlevel = ($self->{partial} and $level == 0);
+        my $ignore_firstlevel = ($self->partial and $level == 0);
         if ($level < 0 or $ignore_firstlevel) {
             for my $c (@{ $node->{children} }) {
                 $self->_process($node, $c);
@@ -109,7 +121,6 @@ sub _process($self, $parent, $node) {
 
         }
         my $diff = $indent - $realindent;
-#        warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$diff], ['diff']);
         if ($diff) {
             $self->_fix_indent($node, $diff, $col);
             $node->fix_node_indent($diff);
@@ -120,7 +131,7 @@ sub _process($self, $parent, $node) {
         return;
     }
     else {
-        my $ignore_firstlevel = ($self->{partial} and $level == 0);
+        my $ignore_firstlevel = ($self->partial and $level == 0);
         my $multiline = $node->multiline;
         if ($parent->{type} eq 'MAP' and ($node->{index} % 2 and not $multiline)) {
             return;
@@ -135,8 +146,6 @@ sub _process($self, $parent, $node) {
         my $new_spaces = ' ' x $new_indent;
 
         my ($anchor, $tag, $comments, $scalar) = $self->_find_scalar_start($node);
-#        warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$lines], ['lines']);
-#        warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$scalar], ['scalar']);
         my $explicit_indent = 0;
         if ($scalar->[2] =~ m/[>|]/) {
             my $l = $lines->[ $scalar->[0] ];
@@ -174,6 +183,8 @@ sub _process($self, $parent, $node) {
 
         $startline = $realstart;
         my $endline = $node->realendline;
+#        warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$startline], ['startline']);
+#        warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$endline], ['endline']);
 
         my $line = $lines->[ $startline ];
         my $realcol = $scalar->[1];
@@ -241,6 +252,9 @@ sub _process($self, $parent, $node) {
         elsif ($node->{style} == YAML_PLAIN_SCALAR_STYLE or
                 $node->{style} == YAML_SINGLE_QUOTED_SCALAR_STYLE or
                 $node->{style} == YAML_DOUBLE_QUOTED_SCALAR_STYLE) {
+            if ($node->empty_scalar) {
+                return;
+            }
             $startline++ if $skipfirst;
             $endline = $node->close->{line};
             return if $startline >= @$lines;
@@ -264,6 +278,72 @@ sub _process($self, $parent, $node) {
     }
 }
 
+sub _process_doc($self, $parent, $node) {
+    DEBUG and say STDERR "_process_doc($node)";
+    my $lines = $self->{lines};
+    my $open = $node->open;
+    my $close = $node->close;
+    if ($node->open->{implicit} and $self->cfg->addheader and not $self->partial) {
+        # add ---
+        splice @$lines, $open->{start}->{line}, 0, '---';
+        $self->{tree}->fix_lines($open->{start}->{line}, +1);
+        $open->{start}->{line}--;
+        $open->{end}->{line}--;
+        $open->{end}->{column} = 3;
+        $open->{implicit} = 0;
+        DEBUG and say STDERR "$node";
+    }
+    elsif ($node->{index} == 1 and not $open->{implicit} and $self->cfg->removeheader and not $self->partial) {
+        # remove first ---
+        my $child = $node->{children}->[0];
+        if ($open->{version_directive} or $open->{tag_directives} or not $child->is_collection and $child->empty_scalar) {
+        }
+        else {
+            my $startline = $open->{start}->{line};
+            my $line = $lines->[ $startline ];
+            if ($line =~ m/^---[ \t]*$/) {
+                splice @$lines, $startline, 1;
+                $self->{tree}->fix_lines($open->{start}->{line}+1, -1);
+                DEBUG and say STDERR "$node";
+                $open->{implicit} = 1;
+            }
+            elsif ($line =~ s/^---[ \t]+(?=#)//) {
+                $lines->[ $startline ] = $line;
+                DEBUG and say STDERR "$node";
+                $open->{implicit} = 1;
+            }
+        }
+    }
+    if ($close->{implicit} and $self->cfg->addfooter and not $self->partial) {
+        # add ...
+        splice @$lines, $close->{start}->{line}, 0, '...';
+        $self->{tree}->fix_lines($close->{start}->{line}, +1);
+        $close->{end}->{column} = 3;
+        $close->{implicit} = 0;
+        DEBUG and say STDERR "$node";
+    }
+    elsif (not $close->{implicit} and $self->cfg->removefooter and not $self->partial) {
+        # remove ...
+        my $next = $parent->{children}->[ $node->{index} ];
+        if ($next and ($next->open->{version_directive} or $next->open->{tag_directives})) {
+        }
+        else {
+            my $startline = $close->{start}->{line};
+            my $line = $lines->[ $startline ];
+            if ($line =~ m/^\.\.\.[ \t]*$/) {
+                splice @$lines, $startline, 1;
+                $self->{tree}->fix_lines($close->{start}->{line}+1, -1);
+                $close->{implicit} = 1;
+            }
+            elsif ($line =~ s/^\.\.\.[ \t]+(?=#)//) {
+                $lines->[ $startline ] = $line;
+                $close->{implicit} = 1;
+            }
+            DEBUG and say STDERR "$node";
+        }
+    }
+}
+
 sub _trimspaces($self, $from, $node) {
     if ($node->is_collection) {
         my $level = $node->{level};
@@ -280,7 +360,7 @@ sub _trimspaces($self, $from, $node) {
             or $node->{style} eq YAML_FOLDED_SCALAR_STYLE) {
             my ($anchor, $tag, $comments, $scalar) = $self->_find_scalar_start($node);
             $self->_trim($$from, $scalar->[0]);
-            $$from = $node->end->{line}
+            $$from = $node->end->{line};
         }
     }
 }
@@ -355,10 +435,7 @@ sub _find_scalar_start($self, $node) {
     my $col = $node->indent;
     my $end = $node->end;
     my $endcol = $end->{column};
-#    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$endcol], ['endcol']);
-#    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$col], ['col']);
     my @slice = @$lines[ $from .. $to ];
-#    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\@slice], ['slice']);
     my $anchor;
     my $tag;
     my @comments;
@@ -407,10 +484,6 @@ sub _find_scalar_start($self, $node) {
         }
     }
     $scalar ||= [$to, length($slice[ -1 ]), ''];
-#    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$anchor], ['anchor']);
-#    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$tag], ['tag']);
-#    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\@comments], ['comments']);
-#    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$scalar], ['scalar']);
     return ($anchor, $tag, \@comments, $scalar);
 }
 
@@ -422,8 +495,6 @@ sub _trim($self, $from, $to) {
 }
 
 sub _fix_indent($self, $node, $fix, $offset) {
-#    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$fix], ['fix']);
-#    warn __PACKAGE__.':'.__LINE__.$".Data::Dumper->Dump([\$offset], ['offset']);
     $offset ||= 0;
     my $startline = $node->line;
     my $lines = $self->{lines};
@@ -566,7 +637,7 @@ sub _tree($self, $yaml, $lines) {
 
 sub _parse($self, $yaml) {
     my @events;
-    YAML::LibYAML::API::XS::parse_string_events($yaml, \@events);
+    YAML::LibYAML::API::XS::parse_events($yaml, \@events);
     return \@events;
 }
 

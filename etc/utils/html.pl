@@ -17,7 +17,7 @@ my @configs = map {
     close $fh;
     my $html = YAML::Tidy->highlight($yaml, 'html');
     $html;
-} (0 .. 3);
+} (0 .. 12);
 
 $|++;
 my $url = 'https://github.com/yaml/yaml-test-suite/blob/main/src';
@@ -25,16 +25,24 @@ my %types = (
     indent => {
         configs => [0 .. 3],
     },
+    header1 => {
+        configs => [5 .. 8],
+    },
+    header2 => {
+        configs => [9 .. 12],
+    },
 );
 
 taglist();
 
 for my $type (sort keys %types) {
+    my $def = $types{ $type };
+    my $configs = $def->{configs};
     my $datadir = "$Bin/generated/$type";
     opendir(my $dh, $datadir);
     my @ids = sort grep { m/^[A-Z0-9]{4}$/ } readdir $dh;
     closedir $dh;
-    html($type, \@ids, [0 .. 3]);
+    html($type, \@ids, $configs);
 }
 
 sub taglist() {

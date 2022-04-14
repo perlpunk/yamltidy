@@ -1,3 +1,4 @@
+
 #!/usr/bin/perl
 use strict;
 use warnings;
@@ -42,16 +43,20 @@ for my $id (sort @ids) {
 }
 
 @valid = @valid[0..168];
-#@valid = @valid[17..17];
-my @indents = (1 .. 4);
+#@valid = $valid[0];
+#@valid = @valid[0 .. 160];
+#@valid = @valid[140 .. 140];
+my @configs = (5 .. 12);
+#@configs = (5);
 
-my @yt = map {
+my @yt;
+map {
     my $cfg = YAML::Tidy::Config->new( configfile => "$Bin/data/configs/config$_.yaml" );
-    YAML::Tidy->new( cfg => $cfg );
-} (0 .. 4);
+    $yt[ $_] = YAML::Tidy->new( cfg => $cfg );
+} @configs;
 
 my %failed;
-for my $i (0 .. 4) {
+for my $i (@configs) {
     diag "============= config $i";
     my $yt = $yt[ $i ];
     for my $id (@valid) {
@@ -78,8 +83,6 @@ for my $i (0 .. 4) {
 
         # reparse
         my @previous_events = map {
-            delete $_->{start};
-            delete $_->{end};
             $_
         } @{ $yt->{events} };
         my $events = eval { $yt->_parse($out) };
@@ -98,6 +101,7 @@ for my $i (0 .. 4) {
             delete $_->{id};
             delete $_->{level};
             delete $_->{nextline};
+            delete $_->{implicit};
             $_;
         } @$events;
         @previous_events = map {
@@ -106,6 +110,7 @@ for my $i (0 .. 4) {
             delete $_->{id};
             delete $_->{level};
             delete $_->{nextline};
+            delete $_->{implicit};
             $_;
         } @previous_events;
         cmp_deeply(\@events, \@previous_events, "$label - Reparse same events") or do {
