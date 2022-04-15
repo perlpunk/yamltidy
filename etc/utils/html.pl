@@ -39,6 +39,18 @@ my %types = (
     },
 );
 
+my $tagfile = "$Bin/../tags.yaml";
+my $taglist = YAML::PP::LoadFile($tagfile);
+my @plain = @{ $taglist->{plain} };
+my @single = @{ $taglist->{single} };
+my @double = @{ $taglist->{double} };
+my %scalars;
+@scalars{ (@plain, @single, @double) } = ();
+my @block_sequence = @{ $taglist->{'block-sequence'} };
+my %block_sequence;
+@block_sequence{ @block_sequence } = ();
+
+
 taglist();
 
 for my $type (sort keys %types) {
@@ -46,7 +58,15 @@ for my $type (sort keys %types) {
     my $configs = $def->{configs};
     my $datadir = "$Bin/generated/$type";
     opendir(my $dh, $datadir);
-    my @ids = sort grep { m/^[A-Z0-9]{4}$/ } readdir $dh;
+    my @ids = sort grep {
+        m/^[A-Z0-9]{4}$/
+    } readdir $dh;
+    if ($type eq 'seqindent') {
+        @ids = grep { exists $block_sequence{ $_ } } @ids;
+    }
+    elsif ($type eq 'quote') {
+        @ids = grep { exists $scalars{ $_ } } @ids;
+    }
     closedir $dh;
     html($type, \@ids, $configs);
 }
