@@ -1,5 +1,10 @@
 Revision history for Perl module YAML::Tidy
 
+0.003_002 2022-04-15 14:55:40+02:00
+
+    - Add option for indenting sequences in block mappings
+    - Add option for quoting (and use plain by default)
+
 0.003_001 2022-04-14 22:26:46+02:00
 
     - Add option for adding or removing header/footer
