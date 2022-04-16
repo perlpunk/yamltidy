@@ -1,5 +1,9 @@
 Revision history for Perl module YAML::Tidy
 
+0.005 2022-04-16 21:59:58+02:00
+
+    - Fix tarball (remove accidentally included etc/docker/perl5 directory)
+
 0.004 2022-04-16 21:51:25+02:00
 
     - Add option for indenting sequences in block mappings

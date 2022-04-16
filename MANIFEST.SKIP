@@ -9,3 +9,4 @@
 ^Makefile.dev
 ^etc/utils
 ^etc/html
+^etc/docker/perl5
