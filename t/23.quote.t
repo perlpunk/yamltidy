@@ -57,13 +57,14 @@ for my $id (sort @ids) {
 
 #@valid = @valid[0..168];
 #@valid = @valid[0..100];
-my @configs = (0 .. 2);
+my @configs = (18 .. 20);
 #@configs = (0 .. 2);
 
-my @yt = map {
+my @yt;
+map {
     my $cfg = YAML::Tidy::Config->new( configfile => "$Bin/data/configs/config$_.yaml" );
-    YAML::Tidy->new( cfg => $cfg );
-} (18 .. 20);
+    $yt[ $_] = YAML::Tidy->new( cfg => $cfg );
+} @configs;
 
 my %failed;
 for my $i (@configs) {

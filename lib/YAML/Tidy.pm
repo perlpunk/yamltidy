@@ -136,9 +136,7 @@ sub _process($self, $parent, $node) {
             return;
         }
         if ($parent->{type} eq 'MAP' and ($node->{index} % 2 and not $node->multiline)) {
-            if (not $node->{tag} and not defined $node->{anchor}) {
-                $self->_replace_quoting($node);
-            }
+            $self->_replace_quoting($node);
             return;
         }
         my $new_indent = $parent->indent + $indent;
@@ -291,7 +289,7 @@ sub _process($self, $parent, $node) {
                 $node->close->{column} -= $remove;
                 @$lines[$startline .. $endline ] = @slice;
             }
-            if (not $node->multiline and not $node->{tag} and not defined $node->{anchor}) {
+            if (not $node->multiline) {
                 $self->_replace_quoting($node);
             }
         }
@@ -321,6 +319,10 @@ sub _replace_quoting($self, $node) {
             my $lines = $self->{lines};
             my $line = $lines->[ $node->open->{line} ];
             my ($from, $to) = ($node->open->{column}, $node->close->{column});
+            if (defined $node->{anchor} or $node->{tag}) {
+                my ($anchor, $tag, $comments, $scalar) = $self->_find_scalar_start($node);
+                $from = $scalar->[1];
+            }
             substr($line, $from, $to - $from, $new_string);
             my $diff = length($new_string) - ($to - $from);
             if ($diff) {
@@ -542,7 +544,7 @@ sub _find_scalar_start($self, $node) {
             next;
         }
         my $cur;
-        while ($part =~ m/\G\s*([&!])(\S+)/g) {
+        while ($part =~ m/\G\s*([&!])(\S*)/g) {
             my $type = $1;
             my $name = $2;
             $cur = pos $part;
