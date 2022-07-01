@@ -7,3 +7,4 @@ trailing-spaces: fix
 header: true
 scalar-style:
   default: plain
+adjacency: 0
