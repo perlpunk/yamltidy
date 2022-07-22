@@ -1,11 +1,5 @@
-FROM alpine:3.15.4
+FROM opensuse/leap:15.4
 
-RUN apk update && apk add \
-    perl \
-  && true
-
-COPY perl5 /yamltidy
-
-ENV PERL5LIB=/yamltidy/lib/perl5 PATH=/yamltidy/bin:$PATH
+RUN zypper -n install perl
 
 WORKDIR /pwd
