@@ -10,6 +10,5 @@
 /etc/html/header2.html
 etc/html/seqindent.html
 etc/html/quote.html
-/YAML-Tidy-*
 /.build/
 /etc/docker/perl5/
