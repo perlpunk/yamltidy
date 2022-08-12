@@ -130,7 +130,7 @@ sub _process($self, $parent, $node) {
     }
     else {
         my $ignore_firstlevel = ($self->partial and $level == 0);
-        if ($node->empty_scalar) {
+        if ($node->empty_leaf) {
             return;
         }
         if ($node->{name} eq 'alias_event') {
@@ -262,7 +262,7 @@ sub _process($self, $parent, $node) {
         elsif ($node->{style} == YAML_PLAIN_SCALAR_STYLE or
                 $node->{style} == YAML_SINGLE_QUOTED_SCALAR_STYLE or
                 $node->{style} == YAML_DOUBLE_QUOTED_SCALAR_STYLE) {
-            if ($node->empty_scalar) {
+            if ($node->empty_leaf) {
                 return;
             }
             my $remove = 0;
@@ -390,7 +390,7 @@ sub _process_doc($self, $parent, $node) {
     elsif ($node->{index} == 1 and not $open->{implicit} and $self->cfg->removeheader and not $self->partial) {
         # remove first ---
         my $child = $node->{children}->[0];
-        if ($open->{version_directive} or $open->{tag_directives} or not $child->is_collection and $child->empty_scalar) {
+        if ($open->{version_directive} or $open->{tag_directives} or not $child->is_collection and $child->empty_leaf) {
         }
         else {
             my $startline = $open->{start}->{line};
@@ -500,7 +500,7 @@ sub _process_flow($self, $parent, $node, $block_indent = undef) {
 }
 
 sub _process_flow_scalar($self, $parent, $node, $block_indent) {
-    if ($node->empty_scalar) {
+    if ($node->empty_leaf) {
         return;
     }
     my $startline = $node->line;
@@ -700,6 +700,9 @@ sub _tree($self, $yaml, $lines) {
         elsif ($name =~ m/mapping_start/) {
             $type = 'MAP';
         }
+        elsif ($name eq 'alias_event') {
+            $type = 'ALI';
+        }
 
         $event->{id} = $id;
         if ($name =~ m/_start_event/) {
@@ -743,6 +746,13 @@ sub _tree($self, $yaml, $lines) {
             $level--;
             $event->{level} = $level;
             $flow-- if $flow;
+        }
+        elsif ($name eq 'alias_event') {
+            $event = YAML::Tidy::Node::Alias->new(%$event, flow => $flow);
+            $ref->{elements}++;
+            $event->{index} = $ref->{elements};
+            $event->{level} = $level;
+            push @{ $ref->{children} }, $event;
         }
         else {
             $event = YAML::Tidy::Node::Scalar->new(%$event, flow => $flow);
