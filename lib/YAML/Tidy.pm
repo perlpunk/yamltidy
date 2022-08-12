@@ -129,8 +129,43 @@ sub _process($self, $parent, $node) {
         return;
     }
     else {
+        if (defined (my $anchor = $node->{anchor})) {
+            my $name = $anchor;
+            $name =~ s/_[0-9]+$//;
+            my $usage = $self->{doc}->{anchors}->{ $name };
+            if ($usage) {
+                shift @$usage;
+                if (@$usage) {
+                    my $new_anchor = $usage->[0];
+                    if ($new_anchor ne $name) {
+                        my $end_column = $node->end->{column};
+                        substr $line, $col, 1+length($anchor), '&' . $new_anchor;
+                        $lines->[ $startline ] = $line;
+                        # TODO move columns
+                    }
+                }
+            }
+        }
         my $ignore_firstlevel = ($self->partial and $level == 0);
         if ($node->empty_leaf) {
+            return;
+        }
+        if ($node->is_alias) {
+            my $anchor = $node->{value};
+            my $name = $anchor;
+            $name =~ s/_[0-9]+$//;
+            my $usage = $self->{doc}->{anchors}->{ $name };
+            if ($usage) {
+                if (@$usage) {
+                    my $new_anchor = $usage->[0];
+                    if ($new_anchor ne $name) {
+                        my $end_column = $node->end->{column};
+                        substr $line, $col, 1+length($anchor), '*' . $new_anchor;
+                        $lines->[ $startline ] = $line;
+                        # TODO move columns
+                    }
+                }
+            }
             return;
         }
         if ($node->{name} eq 'alias_event') {
@@ -372,8 +407,44 @@ sub _emit_value($self, $value, $style) {
     return YAML::LibYAML::API::XS::emit_string_events($events, $options);
 }
 
+sub _collect_aliases($self, $node) {
+    if ($node->is_alias) {
+        my $alias = $node->{value} // '???';
+        $alias =~ s/_[0-9]+$//;
+        $self->{doc}->{aliases}->{ $alias }++;
+    }
+    else {
+        if (defined(my $anchor = $node->{anchor})) {
+            $anchor =~ s/_[0-9]+$//;
+            $self->{doc}->{anchors}->{ $anchor }++;
+        }
+        if ($node->is_collection) {
+            for my $c (@{ $node->{children} }) {
+                $self->_collect_aliases($c);
+            }
+        }
+    }
+}
+
+sub _serialize_aliases($self, $node) {
+    $self->_collect_aliases($node);
+    my $doc = $self->{doc};
+    my $anchors = $doc->{anchors};
+    for my $name (sort keys %$anchors) {
+        delete $anchors->{ $name }, next if $anchors->{ $name } < 2;
+        $anchors->{ $name } = ['', map {
+            $name ."_$_"
+        } 1 .. $anchors->{ $name } ];
+
+    }
+}
+
 sub _process_doc($self, $parent, $node) {
     DEBUG and say STDERR "_process_doc($node)";
+    $self->{doc} = {};
+    if ($self->cfg->serialize_aliases) {
+        $self->_serialize_aliases($node);
+    }
     my $lines = $self->{lines};
     my $open = $node->open;
     my $close = $node->close;

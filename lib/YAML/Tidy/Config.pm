@@ -77,6 +77,12 @@ sub new($class, %args) {
         my $default = $scalar->{default};
         $scalarstyle->{default} = $default ? $stylemap{ $default } : undef;
     }
+    my $serialize_aliases = 0;
+    if (my $aliases = $cfg->{aliases}) {
+        if ($aliases->{serialize}) {
+            $serialize_aliases = 1;
+        }
+    }
 
     delete @args{qw/ configfile configdata /};
     if (my @unknown = keys %args) {
@@ -90,6 +96,7 @@ sub new($class, %args) {
         footer => delete $cfg->{footer} // 'keep',
         adjacency => delete $cfg->{adjacency} // 'keep',
         scalar_style => $scalarstyle,
+        serialize_aliases => $serialize_aliases,
     }, $class;
     return $self;
 }
@@ -146,6 +153,8 @@ sub removefooter($self) {
 sub default_scalar_style($self) {
     return $self->{scalar_style}->{default};
 }
+
+sub serialize_aliases($self) { $self->{serialize_aliases} }
 
 sub standardcfg {
     my $yaml = <<'EOM';
