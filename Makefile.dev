@@ -60,7 +60,7 @@ docker-base:
 docker-build:
 	rm -rf etc/docker/perl5
 	mkdir etc/docker/perl5
-	cd etc/docker && docker run -it --rm --user $$(id -u) -v$(PWD)/etc/docker/perl5:/tmp/yamltidy  yamltidy-base /install-yamltidy.sh
+	cd etc/docker && docker run -it --rm --user $$(id -u) -v$(PWD):/repo -v$(PWD)/etc/docker/perl5:/tmp/yamltidy  yamltidy-base /repo/etc/docker/install-yamltidy.sh
 
 docker:
 	cd etc/docker && docker build -t perlpunk/yamltidy .
