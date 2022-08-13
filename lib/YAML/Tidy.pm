@@ -131,13 +131,16 @@ sub _process($self, $parent, $node) {
     else {
         if (defined (my $anchor = $node->{anchor})) {
             my $name = $anchor;
-            $name =~ s/_[0-9]+$//;
+            $name = $anchor =~ s/_[0-9]+$//r;
             my $usage = $self->{doc}->{anchors}->{ $name };
             if ($usage) {
                 shift @$usage;
                 if (@$usage) {
                     my $new_anchor = $usage->[0];
                     if ($new_anchor ne $name) {
+                        if ($anchor ne $new_anchor) {
+                            $self->{doc}->{rename}->{ $anchor } = $new_anchor;
+                        }
                         my $end_column = $node->end->{column};
                         substr $line, $col, 1+length($anchor), '&' . $new_anchor;
                         $lines->[ $startline ] = $line;
@@ -152,18 +155,14 @@ sub _process($self, $parent, $node) {
         }
         if ($node->is_alias) {
             my $anchor = $node->{value};
-            my $name = $anchor;
-            $name =~ s/_[0-9]+$//;
-            my $usage = $self->{doc}->{anchors}->{ $name };
-            if ($usage) {
-                if (@$usage) {
-                    my $new_anchor = $usage->[0];
-                    if ($new_anchor ne $name) {
-                        my $end_column = $node->end->{column};
-                        substr $line, $col, 1+length($anchor), '*' . $new_anchor;
-                        $lines->[ $startline ] = $line;
-                        # TODO move columns
-                    }
+            my $name = $anchor =~ s/_[0-9]+$//r;
+            my $new_anchor = $self->{doc}->{rename}->{ $anchor };
+            if ($new_anchor) {
+                if ($new_anchor ne $name) {
+                    my $end_column = $node->end->{column};
+                    substr $line, $col, 1+length($anchor), '*' . $new_anchor;
+                    $lines->[ $startline ] = $line;
+                    # TODO move columns
                 }
             }
             return;
