@@ -130,41 +130,15 @@ sub _process($self, $parent, $node) {
     }
     else {
         if (defined (my $anchor = $node->{anchor})) {
-            my $name = $anchor;
-            $name = $anchor =~ s/_[0-9]+$//r;
-            my $usage = $self->{doc}->{anchors}->{ $name };
-            if ($usage) {
-                shift @$usage;
-                if (@$usage) {
-                    my $new_anchor = $usage->[0];
-                    if ($new_anchor ne $name) {
-                        if ($anchor ne $new_anchor) {
-                            $self->{doc}->{rename}->{ $anchor } = $new_anchor;
-                        }
-                        my $end_column = $node->end->{column};
-                        substr $line, $col, 1+length($anchor), '&' . $new_anchor;
-                        $lines->[ $startline ] = $line;
-                        # TODO move columns
-                    }
-                }
-            }
+            $self->_rename_anchor($node);
+            $line = $lines->[ $startline ];
         }
         my $ignore_firstlevel = ($self->partial and $level == 0);
         if ($node->empty_leaf) {
             return;
         }
         if ($node->is_alias) {
-            my $anchor = $node->{value};
-            my $name = $anchor =~ s/_[0-9]+$//r;
-            my $new_anchor = $self->{doc}->{rename}->{ $anchor };
-            if ($new_anchor) {
-                if ($new_anchor ne $name) {
-                    my $end_column = $node->end->{column};
-                    substr $line, $col, 1+length($anchor), '*' . $new_anchor;
-                    $lines->[ $startline ] = $line;
-                    # TODO move columns
-                }
-            }
+            $self->_rename_alias($node);
             return;
         }
         if ($node->{name} eq 'alias_event') {
@@ -438,6 +412,43 @@ sub _serialize_aliases($self, $node) {
     }
 }
 
+sub _rename($self, $type, $node, $anchor, $new_anchor) {
+    my $lines = $self->{lines};
+    my $startline = $node->line;
+    my $line = $lines->[ $startline ];
+    my $col = $node->indent;
+
+    if ($anchor ne $new_anchor) {
+        $self->{doc}->{rename}->{ $anchor } = $new_anchor;
+    }
+    my $end_column = $node->end->{column};
+    substr $line, $col, 1+length($anchor), {anchor=>'&',alias=>'*'}->{$type} . $new_anchor;
+    $lines->[ $startline ] = $line;
+    my $diff = length($new_anchor) - length($anchor);
+    $self->{tree}->_move_columns($node->start->{line}, $node->start->{column} + 1, $diff);
+}
+
+sub _rename_anchor($self, $node) {
+    my $anchor = $node->{anchor};
+    my $group = $anchor =~ s/_[0-9]+$//r;
+    my $usage = $self->{doc}->{anchors}->{ $group } or return;
+    shift @$usage;
+    return unless @$usage;
+    my $new_anchor = $usage->[0];
+    if ($new_anchor ne $group) {
+        $self->_rename(anchor => $node, $anchor, $new_anchor);
+    }
+}
+
+sub _rename_alias($self, $node) {
+    my $anchor = $node->{value};
+    my $new_anchor = $self->{doc}->{rename}->{ $anchor } or return;
+    my $group = $anchor =~ s/_[0-9]+$//r;
+    if ($new_anchor ne $group) {
+        $self->_rename(alias => $node, $anchor, $new_anchor);
+    }
+}
+
 sub _process_doc($self, $parent, $node) {
     DEBUG and say STDERR "_process_doc($node)";
     $self->{doc} = {};
@@ -535,6 +546,13 @@ sub _process_flow($self, $parent, $node, $block_indent = undef) {
     my $flow = $node->{flow} || 0;
     $block_indent //= $parent->indent + $self->cfg->indent;
     $block_indent = 0 if $level == 0;
+
+    if (defined (my $anchor = $node->{anchor})) {
+        $self->_rename_anchor($node);
+    }
+    if ($node->is_alias) {
+        $self->_rename_alias($node);
+    }
 
     unless ($node->is_collection) {
         $self->_process_flow_scalar($parent, $node, $block_indent);

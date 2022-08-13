@@ -154,6 +154,20 @@ sub default_scalar_style($self) {
     return $self->{scalar_style}->{default};
 }
 
+# Turns
+#    ---
+#    - &color blue
+#    - *color
+#    - &color pink
+#    - *color
+#    ...
+# into
+#    ---
+#    - &color_1 blue
+#    - *blue_1
+#    - &color_2 blue
+#    - *blue_2
+#    ...
 sub serialize_aliases($self) { $self->{serialize_aliases} }
 
 sub standardcfg {

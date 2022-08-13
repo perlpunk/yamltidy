@@ -4,6 +4,4 @@
 - &color green
 - x: *color
   y: *color
-- &color blue
-- x: *color
-  y: *color
+- { color: &color "blue", x: *color, "y": *color}
