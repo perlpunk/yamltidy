@@ -48,7 +48,7 @@ if ($file eq '-') {
     $yaml = decode_utf8 do { local $/; <STDIN> };
 }
 else {
-    open my $fh, '<:encoding(UTF-8)', $file or die $!;
+    open my $fh, '<:encoding(UTF-8)', $file or die "Could not open '$file': $!";
     $yaml = do { local $/; <$fh> };
     close $fh;
 }
