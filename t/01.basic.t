@@ -8,7 +8,7 @@ use Encode;
 use FindBin '$Bin';
 use YAML::Tidy;
 
-my $cfg = YAML::Tidy::Config->new( configfile => "$Bin/../.yamltidy" );
+my $cfg = YAML::Tidy::Config->new( configfile => "$Bin/yamltidy" );
 my $yt = YAML::Tidy->new( cfg => $cfg );
 my $yaml = decode_utf8 <<'EOM';
 blöck:   
