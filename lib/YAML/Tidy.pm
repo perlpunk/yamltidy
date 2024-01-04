@@ -369,7 +369,7 @@ sub _change_style($self, $node, $style) {
 }
 
 sub _emit_value($self, $value, $style) {
-    my $options = {};
+    my $options = { unicode => 0 };
     my $events = [
         { name => 'stream_start_event' },
         { name => 'document_start_event', implicit => 1 },

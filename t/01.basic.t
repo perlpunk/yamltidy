@@ -3,14 +3,15 @@ use warnings;
 use 5.010;
 use Test::More;
 use Test::Warnings qw/ :report_warnings /;
+use Encode;
 
 use FindBin '$Bin';
 use YAML::Tidy;
 
 my $cfg = YAML::Tidy::Config->new( configfile => "$Bin/../.yamltidy" );
 my $yt = YAML::Tidy->new( cfg => $cfg );
-my $yaml = <<'EOM';
-block:   
+my $yaml = decode_utf8 <<'EOM';
+blöck:   
  "seq" :
      - 1   
      - "true"
@@ -24,9 +25,9 @@ flow: [
         } ,
      ]  
 EOM
-my $exp = <<'EOM';
+my $exp = decode_utf8 <<'EOM';
 ---
-block:
+blöck:
   seq :
   - 1
   - "true"
