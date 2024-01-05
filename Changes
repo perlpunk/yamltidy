@@ -1,9 +1,10 @@
 Revision history for Perl module YAML::Tidy
 
-v0.7.1 2024-01-04 23:12:38+01:00
+v0.8.0 2024-01-05 22:38:36+01:00
 
     - Fix tidying unicode files
     - Require YAML::LibYAML::API v0.14.0
+    - Allow seralizing reused anchors
     - Change module versioning scheme
 
 0.007 2022-08-06 00:09:43+02:00

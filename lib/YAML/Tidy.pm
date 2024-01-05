@@ -947,16 +947,46 @@ YAML::Tidy - Tidy YAML files
       b:
         c: d
 
-For documentation see L<https://github.com/perlpunk/yamltidy>
+=head1 DESCRIPTION
+
+yamltidy is a linter or rather a formatter for YAML files.
+
+It can adjust formatting without removing comments or blank lines.
 
 For examples see L<https://perlpunk.github.io/yamltidy>
 
-=head1 DESCRIPTION
+The code can be found at L<https://github.com/perlpunk/yamltidy>.
 
-yamltidy can automatically tidy formatting in your YAML files, for example
-adjust indentation and remove trailing spaces.
+=head1 FEATURES
 
-For more information, see L<https://github.com/perlpunk/yamltidy>.
+=over
+
+=item Trim trailing spaces
+
+=item Adjust indentation
+
+=item Add or remove headers and footers
+
+=item Remove unnecessary quotes (currently according to the YAML 1.2 Core Schema)
+
+=item Serialize reused aliases
+
+=back
+
+=head2 Plans
+
+=over
+
+=item Add option for batch processing multiple files, e.g. by extension
+
+=item Use exit code to signal if yamltidy did any changes
+
+=item Quoting: Allow to add patterns for strings that should be quoted
+
+=item For more, see L<https://github.com/perlpunk/yamltidy/issues>. Suggestions
+      welcome!
+
+=back
 
 =head1 METHODS
 
@@ -1005,7 +1035,7 @@ Tina Müller E<lt>tinita@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2020 by Tina Müller
+Copyright 2024 by Tina Müller
 
 This library is free software and may be distributed under the same terms
 as perl itself.
