@@ -1,8 +1,0 @@
----
-indentation: { spaces: 2 }
-trailing-spaces: fix
-scalar-style:
-  default: plain
-header: true
-aliases:
-  serialize: true
