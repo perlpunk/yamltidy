@@ -68,5 +68,6 @@ jobs:
 
     steps:
     - run: exit 1
-      continue-on-error: on
+      continue-on-error: true
+      : value with empty key
     - run: echo "Still alive!"
