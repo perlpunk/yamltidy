@@ -68,5 +68,5 @@ jobs:
 
     steps:
     - run: exit 1
-      continue-on-error: True
+      continue-on-error: TRUE
     - run: echo "Still alive!"
