@@ -62,3 +62,11 @@ jobs:
         cpanm --notest Test::Spelling Test::Pod
     - name: Run Tests
       run: prove -lv xt/03.spelling.t xt/04.pod.t
+
+  testtest:
+    runs-on: ubuntu-latest
+
+    steps:
+    - run: exit 1
+      continue-on-error: true
+    - run: echo "Still alive!"
