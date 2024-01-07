@@ -76,3 +76,41 @@ ul.nav li a {
 ul.nav li a:hover {
   background-color: #111;
 }
+
+table.yaml-example {
+    border: 0px solid #bbb;
+    border-collapse: collapse;
+}
+table.yaml-example tr.columns th {
+    background-color: #ddcc88;
+    border: 1px solid gray;
+}
+table.yaml-example tr th {
+    background-color: lightgrey;
+    padding: 0.5em;
+    margin-top: 5px;
+    border: 0px solid #bbb;
+}
+table.yaml-example tr td {
+    border: 0px solid #bbb;
+    padding-top: 5px;
+    padding-bottom: 10px;
+    vertical-align: top;
+}
+table.yaml-example tr td.config div.yaml-codebox {
+    background-color: #aaeeaa;
+    width: 16em !important;
+    max-width: 16em !important;
+}
+
+div.yaml-codebox {
+    border: 1px solid #cccccc;
+    width: 25em;
+    background-color: #f0f0f0;
+}
+div.yaml-codebox pre {
+    width: 25em !important;
+    max-width: 25em !important;
+    padding: 0px !important;
+    margin: 5px !important;
+}

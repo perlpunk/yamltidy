@@ -10,8 +10,230 @@
   <li><a href="https://github.com/perlpunk/yamltidy">GitHub</a></li>
 </ul>
 
-<h2><code>yamltidy</code> is a formatter for <a
-href="https://yaml.org">YAML</a> files.</h2>
+<h2><code>yamltidy</code> is a formatter for <a href="https://yaml.org">YAML</a> files.</h2>
+
+Tired of manually formatting your YAML files? Let yamltidy do it for you!
+
+<h3>Examples</h3>
+
+<table class="yaml-example">
+<tr class="columns"><th>Config</th><th>Before</th><th>After</th></tr>
+<tr><th colspan="3">Remove Trailing Whitespace</th></tr>
+<tr><td class="config"><div class="yaml-codebox"><pre><span class="doc_start">---</span><span class="eol">
+</span><span class="plainkey">v</span><span class="colon">:</span><span class="default"> </span><span class="default">v0.1</span><span class="eol">
+</span><span class="plainkey">trailing-spaces</span><span class="colon">:</span><span class="default"> </span><span class="default">fix</span><span class="eol">
+</span></pre></div>
+</td><td><div class="yaml-codebox"><pre><span class="plainkey">steps</span><span class="colon">:</span><span class="trailing_space">  # Workflow steps  
+</span><span class="dash">-</span><span class="default"> </span><span class="plainkey">uses</span><span class="colon">:</span><span class="default"> </span><span class="default">actions/checkout@v3</span><span class="trailing_space">  
+</span><span class="dash">-</span><span class="default"> </span><span class="plainkey">name</span><span class="colon">:</span><span class="default"> </span><span class="default">Install deps</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">run</span><span class="colon">:</span><span class="default"> </span><span class="literal">|</span><span class="trailing_space">   
+</span><span class="indent">    </span><span class="trailing_space">apt-get install cpanminus  </span><span class="eol">
+</span><span class="indent">    </span><span class="block_scalar_content"># The trailing space above ^ is</span><span class="eol">
+</span><span class="indent">    </span><span class="block_scalar_content"># content and doesn&#39;t get removed</span><span class="eol">
+</span><span class="indent">    </span><span class="block_scalar_content">cpanm --notest YAML::PP</span><span class="eol">
+</span></pre></div>
+</td><td><div class="yaml-codebox"><pre><span class="plainkey">steps</span><span class="colon">:</span><span class="eol">  # Workflow steps
+</span><span class="dash">-</span><span class="default"> </span><span class="plainkey">uses</span><span class="colon">:</span><span class="default"> </span><span class="default">actions/checkout@v3</span><span class="eol">
+</span><span class="dash">-</span><span class="default"> </span><span class="plainkey">name</span><span class="colon">:</span><span class="default"> </span><span class="default">Install deps</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">run</span><span class="colon">:</span><span class="default"> </span><span class="literal">|</span><span class="eol">
+</span><span class="indent">    </span><span class="trailing_space">apt-get install cpanminus  </span><span class="eol">
+</span><span class="indent">    </span><span class="block_scalar_content"># The trailing space above ^ is</span><span class="eol">
+</span><span class="indent">    </span><span class="block_scalar_content"># content and doesn&#39;t get removed</span><span class="eol">
+</span><span class="indent">    </span><span class="block_scalar_content">cpanm --notest YAML::PP</span><span class="eol">
+</span></pre></div>
+</td></tr>
+
+<tr><th colspan="3">Adjust Indentation</th></tr>
+<tr><td class="config"><div class="yaml-codebox"><pre><span class="doc_start">---</span><span class="eol">
+</span><span class="plainkey">v</span><span class="colon">:</span><span class="default"> </span><span class="default">v0.1</span><span class="eol">
+</span><span class="plainkey">indentation</span><span class="colon">:</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">spaces</span><span class="colon">:</span><span class="default"> </span><span class="default">2</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">block-sequence-in-mapping</span><span class="colon">:</span><span class="default"> </span><span class="default">0</span><span class="eol">
+</span></pre></div>
+</td><td><div class="yaml-codebox"><pre><span class="plainkey">steps</span><span class="colon">:</span><span class="eol">  # Workflow steps
+</span><span class="default">    </span><span class="dash">-</span><span class="default"> </span><span class="plainkey">uses</span><span class="colon">:</span><span class="default"> </span><span class="default">actions/checkout@v3</span><span class="eol">
+</span><span class="default">    </span><span class="dash">-</span><span class="default"> </span><span class="plainkey">name</span><span class="colon">:</span><span class="default"> </span><span class="default">Install deps</span><span class="eol">
+</span><span class="default">      </span><span class="plainkey">run</span><span class="colon">:</span><span class="default"> </span><span class="literal">|</span><span class="eol">
+</span><span class="indent">       </span><span class="block_scalar_content">apt-get install cpanminus</span><span class="eol">
+</span><span class="indent">       </span><span class="block_scalar_content">cpanm --notest YAML::PP</span><span class="eol">
+</span></pre></div>
+</td><td><div class="yaml-codebox"><pre><span class="plainkey">steps</span><span class="colon">:</span><span class="eol">  # Workflow steps
+</span><span class="dash">-</span><span class="default"> </span><span class="plainkey">uses</span><span class="colon">:</span><span class="default"> </span><span class="default">actions/checkout@v3</span><span class="eol">
+</span><span class="dash">-</span><span class="default"> </span><span class="plainkey">name</span><span class="colon">:</span><span class="default"> </span><span class="default">Install deps</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">run</span><span class="colon">:</span><span class="default"> </span><span class="literal">|</span><span class="eol">
+</span><span class="indent">    </span><span class="block_scalar_content">apt-get install cpanminus</span><span class="eol">
+</span><span class="indent">    </span><span class="block_scalar_content">cpanm --notest YAML::PP</span><span class="eol">
+</span></pre></div>
+</td></tr>
+<tr><td class="config"><div class="yaml-codebox"><pre><span class="doc_start">---</span><span class="eol">
+</span><span class="plainkey">v</span><span class="colon">:</span><span class="default"> </span><span class="default">v0.1</span><span class="eol">
+</span><span class="plainkey">indentation</span><span class="colon">:</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">spaces</span><span class="colon">:</span><span class="default"> </span><span class="default">2</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">block-sequence-in-mapping</span><span class="colon">:</span><span class="default"> </span><span class="default">2</span><span class="eol">
+</span></pre></div>
+</td><td><div class="yaml-codebox"><pre><span class="plainkey">steps</span><span class="colon">:</span><span class="eol">  # Workflow steps
+</span><span class="default">    </span><span class="dash">-</span><span class="default"> </span><span class="plainkey">uses</span><span class="colon">:</span><span class="default"> </span><span class="default">actions/checkout@v3</span><span class="eol">
+</span><span class="default">    </span><span class="dash">-</span><span class="default"> </span><span class="plainkey">name</span><span class="colon">:</span><span class="default"> </span><span class="default">Install deps</span><span class="eol">
+</span><span class="default">      </span><span class="plainkey">run</span><span class="colon">:</span><span class="default"> </span><span class="literal">|</span><span class="eol">
+</span><span class="indent">       </span><span class="block_scalar_content">apt-get install cpanminus</span><span class="eol">
+</span><span class="indent">       </span><span class="block_scalar_content">cpanm --notest YAML::PP</span><span class="eol">
+</span></pre></div>
+</td><td><div class="yaml-codebox"><pre><span class="plainkey">steps</span><span class="colon">:</span><span class="eol">  # Workflow steps
+</span><span class="default">  </span><span class="dash">-</span><span class="default"> </span><span class="plainkey">uses</span><span class="colon">:</span><span class="default"> </span><span class="default">actions/checkout@v3</span><span class="eol">
+</span><span class="default">  </span><span class="dash">-</span><span class="default"> </span><span class="plainkey">name</span><span class="colon">:</span><span class="default"> </span><span class="default">Install deps</span><span class="eol">
+</span><span class="default">    </span><span class="plainkey">run</span><span class="colon">:</span><span class="default"> </span><span class="literal">|</span><span class="eol">
+</span><span class="indent">      </span><span class="block_scalar_content">apt-get install cpanminus</span><span class="eol">
+</span><span class="indent">      </span><span class="block_scalar_content">cpanm --notest YAML::PP</span><span class="eol">
+</span></pre></div>
+</td></tr>
+<tr><th colspan="3">Add Header and Footer</th></tr>
+<tr><td class="config"><div class="yaml-codebox"><pre><span class="doc_start">---</span><span class="eol">
+</span><span class="plainkey">v</span><span class="colon">:</span><span class="default"> </span><span class="default">v0.1</span><span class="eol">
+</span><span class="plainkey">header</span><span class="colon">:</span><span class="default"> </span><span class="default">true</span><span class="eol">
+</span><span class="plainkey">footer</span><span class="colon">:</span><span class="default"> </span><span class="default">true</span><span class="eol">
+</span></pre></div>
+</td><td><div class="yaml-codebox"><pre><span class="plainkey">steps</span><span class="colon">:</span><span class="eol">  # Workflow steps
+</span><span class="dash">-</span><span class="default"> </span><span class="plainkey">uses</span><span class="colon">:</span><span class="default"> </span><span class="default">actions/checkout@v3</span><span class="eol">
+</span><span class="dash">-</span><span class="default"> </span><span class="plainkey">name</span><span class="colon">:</span><span class="default"> </span><span class="default">Install deps</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">run</span><span class="colon">:</span><span class="default"> </span><span class="literal">|</span><span class="eol">
+</span><span class="indent">    </span><span class="block_scalar_content">apt-get install cpanminus</span><span class="eol">
+</span><span class="indent">    </span><span class="block_scalar_content">cpanm --notest YAML::PP</span><span class="eol">
+</span></pre></div>
+</td><td><div class="yaml-codebox"><pre><span class="doc_start">---</span><span class="eol">
+</span><span class="plainkey">steps</span><span class="colon">:</span><span class="eol">  # Workflow steps
+</span><span class="dash">-</span><span class="default"> </span><span class="plainkey">uses</span><span class="colon">:</span><span class="default"> </span><span class="default">actions/checkout@v3</span><span class="eol">
+</span><span class="dash">-</span><span class="default"> </span><span class="plainkey">name</span><span class="colon">:</span><span class="default"> </span><span class="default">Install deps</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">run</span><span class="colon">:</span><span class="default"> </span><span class="literal">|</span><span class="eol">
+</span><span class="indent">    </span><span class="block_scalar_content">apt-get install cpanminus</span><span class="eol">
+</span><span class="indent">    </span><span class="block_scalar_content">cpanm --notest YAML::PP</span><span class="eol">
+</span><span class="doc_end">...</span><span class="eol">
+</span></pre></div>
+</td></tr>
+
+<tr><th colspan="3">Quoting</th></tr>
+<tr><td class="config"><div class="yaml-codebox"><pre><span class="doc_start">---</span><span class="eol">
+</span><span class="plainkey">v</span><span class="colon">:</span><span class="default"> </span><span class="default">v0.1</span><span class="eol">
+</span><span class="plainkey">scalar-style</span><span class="colon">:</span><span class="eol">
+</span><span class="eol">  # Remove quotes
+</span><span class="eol">  # where possible
+</span><span class="default">  </span><span class="plainkey">default</span><span class="colon">:</span><span class="default"> </span><span class="default">plain</span><span class="eol">
+</span></pre></div>
+</td><td><div class="yaml-codebox"><pre><span class="doublequote">&quot;</span><span class="doublequoted">steps</span><span class="doublequote">&quot;</span><span class="colon">:</span><span class="eol">  # Workflow steps
+</span><span class="dash">-</span><span class="default"> </span><span class="plainkey">uses</span><span class="colon">:</span><span class="default"> </span><span class="doublequote">&quot;</span><span class="doublequoted">actions/checkout@v3</span><span class="doublequote">&quot;</span><span class="eol">
+</span><span class="dash">-</span><span class="default"> </span><span class="plainkey">name</span><span class="colon">:</span><span class="default"> </span><span class="default">Install deps</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">run</span><span class="colon">:</span><span class="default"> </span><span class="default">cpanm --notest YAML::PP</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">env</span><span class="colon">:</span><span class="default"> </span><span class="flowmap_start">{</span><span class="default"> </span><span class="plainkey">glob</span><span class="colon">:</span><span class="default"> </span><span class="singlequote">&#39;</span><span class="singlequoted">*</span><span class="singlequote">&#39;</span><span class="default"> </span><span class="flowmap_end">}</span><span class="eol">
+</span><span class="default">  </span><span class="doublequote">&quot;</span><span class="doublequoted">continue-on-error</span><span class="doublequote">&quot;</span><span class="colon">:</span><span class="default"> </span><span class="default">true</span><span class="eol">
+</span></pre></div>
+</td><td><div class="yaml-codebox"><pre><span class="plainkey">steps</span><span class="colon">:</span><span class="eol">  # Workflow steps
+</span><span class="dash">-</span><span class="default"> </span><span class="plainkey">uses</span><span class="colon">:</span><span class="default"> </span><span class="default">actions/checkout@v3</span><span class="eol">
+</span><span class="dash">-</span><span class="default"> </span><span class="plainkey">name</span><span class="colon">:</span><span class="default"> </span><span class="default">Install deps</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">run</span><span class="colon">:</span><span class="default"> </span><span class="default">cpanm --notest YAML::PP</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">env</span><span class="colon">:</span><span class="default"> </span><span class="flowmap_start">{</span><span class="default"> </span><span class="plainkey">glob</span><span class="colon">:</span><span class="default"> </span><span class="singlequote">&#39;</span><span class="singlequoted">*</span><span class="singlequote">&#39;</span><span class="default"> </span><span class="flowmap_end">}</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">continue-on-error</span><span class="colon">:</span><span class="default"> </span><span class="default">true</span><span class="eol">
+</span></pre></div>
+</td></tr>
+<tr><td class="config"><div class="yaml-codebox"><pre><span class="doc_start">---</span><span class="eol">
+</span><span class="plainkey">v</span><span class="colon">:</span><span class="default"> </span><span class="default">v0.1</span><span class="eol">
+</span><span class="plainkey">scalar-style</span><span class="colon">:</span><span class="eol">
+</span><span class="eol">  # Add singlequotes
+</span><span class="eol">  # to every scalar
+</span><span class="default">  </span><span class="plainkey">default</span><span class="colon">:</span><span class="default"> </span><span class="default">single</span><span class="eol">
+</span></pre></div>
+</td><td><div class="yaml-codebox"><pre><span class="plainkey">steps</span><span class="colon">:</span><span class="eol">  # Workflow steps
+</span><span class="dash">-</span><span class="default"> </span><span class="plainkey">uses</span><span class="colon">:</span><span class="default"> </span><span class="default">actions/checkout@v3</span><span class="eol">
+</span><span class="dash">-</span><span class="default"> </span><span class="plainkey">name</span><span class="colon">:</span><span class="default"> </span><span class="default">Install deps</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">run</span><span class="colon">:</span><span class="default"> </span><span class="default">cpanm --notest YAML::PP</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">env</span><span class="colon">:</span><span class="default"> </span><span class="flowmap_start">{</span><span class="default"> </span><span class="plainkey">glob</span><span class="colon">:</span><span class="default"> </span><span class="singlequote">&#39;</span><span class="singlequoted">*</span><span class="singlequote">&#39;</span><span class="default"> </span><span class="flowmap_end">}</span><span class="eol">
+</span><span class="eol">  # &#39;true&#39; doesn&#39;t get quotes
+</span><span class="eol">  # because it is a boolean
+</span><span class="default">  </span><span class="plainkey">continue-on-error</span><span class="colon">:</span><span class="default"> </span><span class="default">true</span><span class="eol">
+</span></pre></div>
+</td><td><div class="yaml-codebox"><pre><span class="singlequote">&#39;</span><span class="singlequoted">steps</span><span class="singlequote">&#39;</span><span class="colon">:</span><span class="eol">  # Workflow steps
+</span><span class="dash">-</span><span class="default"> </span><span class="singlequote">&#39;</span><span class="singlequoted">uses</span><span class="singlequote">&#39;</span><span class="colon">:</span><span class="default"> </span><span class="singlequote">&#39;</span><span class="singlequoted">actions/checkout@v3</span><span class="singlequote">&#39;</span><span class="eol">
+</span><span class="dash">-</span><span class="default"> </span><span class="singlequote">&#39;</span><span class="singlequoted">name</span><span class="singlequote">&#39;</span><span class="colon">:</span><span class="default"> </span><span class="singlequote">&#39;</span><span class="singlequoted">Install deps</span><span class="singlequote">&#39;</span><span class="eol">
+</span><span class="default">  </span><span class="singlequote">&#39;</span><span class="singlequoted">run</span><span class="singlequote">&#39;</span><span class="colon">:</span><span class="default"> </span><span class="singlequote">&#39;</span><span class="singlequoted">cpanm --notest YAML::PP</span><span class="singlequote">&#39;</span><span class="eol">
+</span><span class="default">  </span><span class="singlequote">&#39;</span><span class="singlequoted">env</span><span class="singlequote">&#39;</span><span class="colon">:</span><span class="default"> </span><span class="flowmap_start">{</span><span class="default"> </span><span class="singlequote">&#39;</span><span class="singlequoted">glob</span><span class="singlequote">&#39;</span><span class="colon">:</span><span class="default"> </span><span class="singlequote">&#39;</span><span class="singlequoted">*</span><span class="singlequote">&#39;</span><span class="default"> </span><span class="flowmap_end">}</span><span class="eol">
+</span><span class="eol">  # &#39;true&#39; doesn&#39;t get quotes
+</span><span class="eol">  # because it is a boolean
+</span><span class="default">  </span><span class="singlequote">&#39;</span><span class="singlequoted">continue-on-error</span><span class="singlequote">&#39;</span><span class="colon">:</span><span class="default"> </span><span class="default">true</span><span class="eol">
+</span></pre></div>
+</td></tr>
+
+<tr><th colspan="3">Serialize Aliases</th></tr>
+<tr><td colspan="3">
+Anchors can be redefined inside a YAML document.<br>
+Some libraries don't allow it, and maybe you also want to disallow it.<br>
+But manually numbering anchors can be tedious.<br>
+yamltidy will add a numeric suffix to all redefined anchors.
+</td></tr>
+<tr><td class="config"><div class="yaml-codebox"><pre><span class="doc_start">---</span><span class="eol">
+</span><span class="plainkey">v</span><span class="colon">:</span><span class="default"> </span><span class="default">v0.1</span><span class="eol">
+</span><span class="plainkey">aliases</span><span class="colon">:</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">serialize</span><span class="colon">:</span><span class="default"> </span><span class="default">true</span><span class="eol">
+</span></pre></div>
+</td><td><div class="yaml-codebox"><pre><span class="dash">-</span><span class="default"> </span><span class="plainkey">main</span><span class="colon">:</span><span class="default"> </span><span class="anchor">&amp;color</span><span class="default"> </span><span class="default">red</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">name</span><span class="colon">:</span><span class="default"> </span><span class="default">A</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">x</span><span class="colon">:</span><span class="default"> </span><span class="alias">*color</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">y</span><span class="colon">:</span><span class="default"> </span><span class="alias">*color</span><span class="eol">
+</span><span class="dash">-</span><span class="default"> </span><span class="plainkey">main</span><span class="colon">:</span><span class="default"> </span><span class="anchor">&amp;color</span><span class="default"> </span><span class="default">pink</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">name</span><span class="colon">:</span><span class="default"> </span><span class="default">B</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">x</span><span class="colon">:</span><span class="default"> </span><span class="alias">*color</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">y</span><span class="colon">:</span><span class="default"> </span><span class="alias">*color</span><span class="eol">
+</span></pre></div>
+</td><td><div class="yaml-codebox"><pre><span class="dash">-</span><span class="default"> </span><span class="plainkey">main</span><span class="colon">:</span><span class="default"> </span><span class="anchor">&amp;color_1</span><span class="default"> </span><span class="default">red</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">name</span><span class="colon">:</span><span class="default"> </span><span class="default">A</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">x</span><span class="colon">:</span><span class="default"> </span><span class="alias">*color_1</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">y</span><span class="colon">:</span><span class="default"> </span><span class="alias">*color_1</span><span class="eol">
+</span><span class="dash">-</span><span class="default"> </span><span class="plainkey">main</span><span class="colon">:</span><span class="default"> </span><span class="anchor">&amp;color_2</span><span class="default"> </span><span class="default">pink</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">name</span><span class="colon">:</span><span class="default"> </span><span class="default">B</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">x</span><span class="colon">:</span><span class="default"> </span><span class="alias">*color_2</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">y</span><span class="colon">:</span><span class="default"> </span><span class="alias">*color_2</span><span class="eol">
+</span></pre></div>
+</td></tr>
+<tr><td class="config"><div class="yaml-codebox"><pre><span class="doc_start">---</span><span class="eol">
+</span><span class="plainkey">v</span><span class="colon">:</span><span class="default"> </span><span class="default">v0.1</span><span class="eol">
+</span><span class="plainkey">aliases</span><span class="colon">:</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">serialize</span><span class="colon">:</span><span class="default"> </span><span class="default">true</span><span class="eol">
+</span></pre></div>
+</td><td><div class="yaml-codebox"><pre><span class="dash">-</span><span class="default"> </span><span class="plainkey">main</span><span class="colon">:</span><span class="default"> </span><span class="anchor">&amp;color_1</span><span class="default"> </span><span class="default">red</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">name</span><span class="colon">:</span><span class="default"> </span><span class="default">A</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">x</span><span class="colon">:</span><span class="default"> </span><span class="alias">*color_1</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">y</span><span class="colon">:</span><span class="default"> </span><span class="alias">*color_1</span><span class="eol">
+</span><span class="eol">
+</span><span class="eol"># New anchor will cause renumbering
+</span><span class="dash">-</span><span class="default"> </span><span class="plainkey">main</span><span class="colon">:</span><span class="default"> </span><span class="anchor">&amp;color</span><span class="default"> </span><span class="default">blue</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">name</span><span class="colon">:</span><span class="default"> </span><span class="default">A2</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">x</span><span class="colon">:</span><span class="default"> </span><span class="alias">*color</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">y</span><span class="colon">:</span><span class="default"> </span><span class="alias">*color</span><span class="eol">
+</span><span class="eol">
+</span><span class="dash">-</span><span class="default"> </span><span class="plainkey">main</span><span class="colon">:</span><span class="default"> </span><span class="anchor">&amp;color_2</span><span class="default"> </span><span class="default">pink</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">name</span><span class="colon">:</span><span class="default"> </span><span class="default">B</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">x</span><span class="colon">:</span><span class="default"> </span><span class="alias">*color_2</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">y</span><span class="colon">:</span><span class="default"> </span><span class="alias">*color_2</span><span class="eol">
+</span></pre></div>
+</td><td><div class="yaml-codebox"><pre><span class="dash">-</span><span class="default"> </span><span class="plainkey">main</span><span class="colon">:</span><span class="default"> </span><span class="anchor">&amp;color_1</span><span class="default"> </span><span class="default">red</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">name</span><span class="colon">:</span><span class="default"> </span><span class="default">A</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">x</span><span class="colon">:</span><span class="default"> </span><span class="alias">*color_1</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">y</span><span class="colon">:</span><span class="default"> </span><span class="alias">*color_1</span><span class="eol">
+</span><span class="eol">
+</span><span class="eol"># New anchor will cause renumbering
+</span><span class="dash">-</span><span class="default"> </span><span class="plainkey">main</span><span class="colon">:</span><span class="default"> </span><span class="anchor">&amp;color_2</span><span class="default"> </span><span class="default">blue</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">name</span><span class="colon">:</span><span class="default"> </span><span class="default">A2</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">x</span><span class="colon">:</span><span class="default"> </span><span class="alias">*color_2</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">y</span><span class="colon">:</span><span class="default"> </span><span class="alias">*color_2</span><span class="eol">
+</span><span class="eol">
+</span><span class="dash">-</span><span class="default"> </span><span class="plainkey">main</span><span class="colon">:</span><span class="default"> </span><span class="anchor">&amp;color_3</span><span class="default"> </span><span class="default">pink</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">name</span><span class="colon">:</span><span class="default"> </span><span class="default">B</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">x</span><span class="colon">:</span><span class="default"> </span><span class="alias">*color_3</span><span class="eol">
+</span><span class="default">  </span><span class="plainkey">y</span><span class="colon">:</span><span class="default"> </span><span class="alias">*color_3</span><span class="eol">
+</span></pre></div>
+</td></tr>
+
+</table>
+
+<h3>Features</h3>
+
 Currently it can:
 <ul>
 <li>Adjust indentation</li>
@@ -47,7 +269,7 @@ Examples for a large number of input files can be found here:
 </ul>
 
 Usage:
-<a href="https://github.com/perlpunk/yamltidy">yamltidy</a>
+<a href="https://github.com/perlpunk/yamltidy#Usage">yamltidy</a>
 
 <p>
 Links:
