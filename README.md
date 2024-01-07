@@ -70,7 +70,7 @@ It's written in YAML, and it searches for it in these places:
 
 You can pass the configuration file via the `-c`/`--config-file` switch.
 
-The default config: [.yamltidy](.yamltidy)
+The default config: [t/yamltidy](t/yamltidy)
 
 An indentation of two spaces is recommended.
 Sequences will by default be zero-indented, because the hyphen `-` counts

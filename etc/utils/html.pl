@@ -38,6 +38,12 @@ my %types = (
         configs => [18 .. 20],
     },
 );
+my $nav = <<'EOM';
+<ul class="nav">
+  <li><a class="active" href="index.html">yamltidy</a></li>
+  <li><a href="https://github.com/perlpunk/yamltidy">GitHub</a></li>
+</ul>
+EOM
 
 my $tagfile = "$Bin/../tags.yaml";
 my $taglist = YAML::PP::LoadFile($tagfile);
@@ -90,6 +96,7 @@ sub taglist() {
 <link rel="stylesheet" type="text/css" href="css/main.css">
 <link rel="stylesheet" type="text/css" href="css/yaml.css">
 <body>
+$nav
 <pre class="taglist">$highlighted</pre>
 </body>
 </html>
@@ -133,6 +140,7 @@ sub html($type, $ids, $configs) {
 <link rel="stylesheet" type="text/css" href="css/main.css">
 <link rel="stylesheet" type="text/css" href="css/yaml.css">
 <body>
+$nav
 $table
 </body>
 </html>

@@ -1,4 +1,5 @@
 body {
+    background-color: #e8e8e8;
     font-family: Arial;
 }
 a {
@@ -51,3 +52,27 @@ pre.diff {
     border: 1px solid #ff9900;
 }
 
+ul.nav {
+  list-style-type: none;
+  margin: 0;
+  margin-bottom: 5px;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
+}
+
+ul.nav li {
+  float: left;
+}
+
+ul.nav li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+ul.nav li a:hover {
+  background-color: #111;
+}
