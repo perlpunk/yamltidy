@@ -65,3 +65,5 @@ docker-build:
 docker:
 	cd etc/docker && docker build -t perlpunk/yamltidy .
 
+pod:
+	appspec pod etc/spec.yaml >lib/yamltidy.pod
