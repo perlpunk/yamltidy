@@ -1,0 +1,8 @@
+- main: &color red
+  name: A
+  x: *color
+  y: *color
+- main: &color pink
+  name: B
+  x: *color
+  y: *color

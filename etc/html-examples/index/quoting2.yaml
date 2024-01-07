@@ -1,0 +1,8 @@
+steps:  # Workflow steps
+- uses: actions/checkout@v3
+- name: Install deps
+  run: cpanm --notest YAML::PP
+  env: { glob: '*' }
+  # 'true' doesn't get quotes
+  # because it is a boolean
+  continue-on-error: true

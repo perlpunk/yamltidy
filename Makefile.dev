@@ -50,9 +50,24 @@ gh-pages-push: gh-pages
 
 gh-pages-generate: analyze generate highlight gh-pages-copy
 
+tidy-examples:
+	cd etc/html-examples && \
+	yamltidy index/spaces.yaml -c index/spaces-cfg.yaml >index/spaces.yaml.tdy && \
+	yamltidy index/indent.yaml -c index/indent-cfg1.yaml >index/indent.yaml.tdy && \
+	yamltidy index/indent2.yaml -c index/indent-cfg2.yaml >index/indent2.yaml.tdy && \
+	yamltidy index/quoting1.yaml -c index/quoting1-cfg.yaml >index/quoting1.yaml.tdy && \
+	yamltidy index/quoting2.yaml -c index/quoting2-cfg.yaml >index/quoting2.yaml.tdy && \
+	yamltidy index/serialize-aliases1.yaml -c index/serialize-aliases-cfg.yaml >index/serialize-aliases1.yaml.tdy && \
+	yamltidy index/serialize-aliases2.yaml -c index/serialize-aliases-cfg.yaml >index/serialize-aliases2.yaml.tdy && \
+	yamltidy index/header.yaml -c index/header-cfg.yaml >index/header.yaml.tdy
+
+static:
+	perl etc/utils/static.pl
+
 gh-pages-copy:
 	rm -r gh-pages/*
 	cp -r etc/html/* gh-pages/
+	cp etc/utils/generated/static/index.html gh-pages/
 
 docker-base:
 	cd etc/docker && docker build -t yamltidy-base -f Dockerfile.base .

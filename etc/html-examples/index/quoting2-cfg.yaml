@@ -1,0 +1,6 @@
+---
+v: v0.1
+scalar-style:
+  # Add singlequotes
+  # to every scalar
+  default: single

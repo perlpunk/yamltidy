@@ -1,0 +1,8 @@
+steps:  # Workflow steps
+- uses: actions/checkout@v3
+- name: Install deps
+  run: |
+    apt-get install cpanminus  
+    # The trailing space above ^ is
+    # content and doesn't get removed
+    cpanm --notest YAML::PP

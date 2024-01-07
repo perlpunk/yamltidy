@@ -1,0 +1,6 @@
+---
+v: v0.1
+scalar-style:
+  # Remove quotes
+  # where possible
+  default: plain

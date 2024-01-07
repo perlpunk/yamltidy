@@ -1,0 +1,6 @@
+steps:  # Workflow steps
+- uses: actions/checkout@v3
+- name: Install deps
+  run: cpanm --notest YAML::PP
+  env: { glob: '*' }
+  continue-on-error: true

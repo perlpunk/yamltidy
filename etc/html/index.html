@@ -10,14 +10,47 @@
   <li><a href="https://github.com/perlpunk/yamltidy">GitHub</a></li>
 </ul>
 
-<h2><code>yamltidy</code> is a formatter for <a
-href="https://yaml.org">YAML</a> files.</h2>
+<h2><code>yamltidy</code> is a formatter for <a href="https://yaml.org">YAML</a> files.</h2>
+
+Tired of manually formatting your YAML files? Let yamltidy do it for you!
+
+<h3>Examples</h3>
+
+<table class="yaml-example">
+<tr class="columns"><th>Config</th><th>Before</th><th>After</th></tr>
+<tr><th colspan="3">Remove Trailing Whitespace</th></tr>
+<tr><td class="config">${index/spaces-cfg.yaml}</td><td>${index/spaces.yaml}</td><td>${index/spaces.yaml.tdy}</td></tr>
+
+<tr><th colspan="3">Adjust Indentation</th></tr>
+<tr><td class="config">${index/indent-cfg1.yaml}</td><td>${index/indent.yaml}</td><td>${index/indent.yaml.tdy}</td></tr>
+<tr><td class="config">${index/indent-cfg2.yaml}</td><td>${index/indent2.yaml}</td><td>${index/indent2.yaml.tdy}</td></tr>
+<tr><th colspan="3">Add Header and Footer</th></tr>
+<tr><td class="config">${index/header-cfg.yaml}</td><td>${index/header.yaml}</td><td>${index/header.yaml.tdy}</td></tr>
+
+<tr><th colspan="3">Quoting</th></tr>
+<tr><td class="config">${index/quoting1-cfg.yaml}</td><td>${index/quoting1.yaml}</td><td>${index/quoting1.yaml.tdy}</td></tr>
+<tr><td class="config">${index/quoting2-cfg.yaml}</td><td>${index/quoting2.yaml}</td><td>${index/quoting2.yaml.tdy}</td></tr>
+
+<tr><th colspan="3">Serialize Aliases</th></tr>
+<tr><td colspan="3">
+Anchors can be redefined inside a YAML document.<br>
+Some libraries don't allow it, and maybe you also want to disallow it.<br>
+But manually numbering anchors can be tedious.<br>
+yamltidy will add a numeric suffix to all redefined anchors.
+</td></tr>
+<tr><td class="config">${index/serialize-aliases-cfg.yaml}</td><td>${index/serialize-aliases1.yaml}</td><td>${index/serialize-aliases1.yaml.tdy}</td></tr>
+<tr><td class="config">${index/serialize-aliases-cfg.yaml}</td><td>${index/serialize-aliases2.yaml}</td><td>${index/serialize-aliases2.yaml.tdy}</td></tr>
+
+</table>
+
+<h3>Features</h3>
+
 Currently it can:
 <ul>
 <li>Adjust indentation</li>
 <li>Trim trailing spaces</li>
 <li>Add or remove header <code>---</code> and footer <code>...</code>
-<li>Enforce quoting style (currently only for single line scalars in block mode)
+<li>Enforce quoting style (currently limited to single line scalars and YAML 1.2 Core Schema)
 </ul>
 Plans for the future:
 <ul>
@@ -47,7 +80,7 @@ Examples for a large number of input files can be found here:
 </ul>
 
 Usage:
-<a href="https://github.com/perlpunk/yamltidy">yamltidy</a>
+<a href="https://github.com/perlpunk/yamltidy#Usage">yamltidy</a>
 
 <p>
 Links:

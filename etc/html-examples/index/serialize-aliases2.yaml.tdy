@@ -1,0 +1,15 @@
+- main: &color_1 red
+  name: A
+  x: *color_1
+  y: *color_1
+
+# New anchor will cause renumbering
+- main: &color_2 blue
+  name: A2
+  x: *color_2
+  y: *color_2
+
+- main: &color_3 pink
+  name: B
+  x: *color_3
+  y: *color_3
