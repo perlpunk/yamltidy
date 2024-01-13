@@ -1,5 +1,11 @@
 Revision history for Perl module YAML::Tidy
 
+v0.8.1 2024-01-13 03:17:51+01:00
+
+    - Add option --batch-stdin
+    - Add option --verbose
+    - Add yamltidy.pod
+
 v0.8.0 2024-01-05 22:38:36+01:00
 
     - Fix tidying unicode files
