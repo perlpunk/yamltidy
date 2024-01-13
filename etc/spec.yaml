@@ -93,6 +93,7 @@ options:
 - partial --Input is only a part of a YAML file
 - indent=i --Override indentation spaces from config
 - batch-stdin --Tidy all file names passed via STDIN
+- verbose --Output information
 - help|h --print usage message and exit
 - version --Print version information
 

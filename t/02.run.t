@@ -92,6 +92,12 @@ subtest file => sub {
     ok exists $write{ $infile }, 'inplace - file written';
     is $write{ $infile }, $tidied, 'inplace - file content correct';
     clean();
+
+    local @ARGV = (qw/ --inplace --verbose /, $infile);
+    $ytr = YAML::Tidy::Run->new(stdin => \*DATA);
+    $ytr->run;
+    like $out[0], qr{info.*Processed.*run.yaml.*\bchanged}, 'Verbose output';
+    clean();
 };
 
 subtest 'batch-stdin' => sub {

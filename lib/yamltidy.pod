@@ -99,6 +99,7 @@ Vim example configuration:
     --partial           Input is only a part of a YAML file (flag) 
     --indent            Override indentation spaces from config    
     --batch-stdin       Tidy all file names passed via STDIN (flag)
+    --verbose           Output information (flag)                  
     --help -h           print usage message and exit (flag)        
     --version           Print version information (flag)           
 

@@ -22,6 +22,7 @@ my @options = (
     [ 'partial' => 'Input is only a part of a YAML file' ],
     [ 'indent=i' => 'Override indentation spaces from config' ],
     [ 'batch-stdin' => 'Tidy all file names passed via STDIN' ],
+    [ 'verbose|v' => 'Output information' ],
     [],
     [ 'help|h', "print usage message and exit", { shortcircuit => 1 } ],
     [ 'version', "Print version information", { shortcircuit => 1 } ],
@@ -97,6 +98,7 @@ EOM
 sub _process_file($self, $file) {
     my $opt = $self->{opt};
     my $yt = $self->{tidy};
+    my $changed = 0;
     open my $fh, '<:encoding(UTF-8)', $file or die "Could not open '$file': $!";
     my $yaml = do { local $/; <$fh> };
     close $fh;
@@ -105,13 +107,21 @@ sub _process_file($self, $file) {
 
     my $out = $yt->tidy($yaml);
 
+    if ($out ne $yaml) {
+        $changed = 1;
+    }
     if ($opt->inplace) {
-        $self->_write_file($file, $out);
+        $changed and $self->_write_file($file, $out);
     }
     else {
         $opt->debug or $self->_output(encode_utf8 $out);
     }
     $opt->debug and $self->_after($file, $out);
+    $self->_info(sprintf "Processed '%s' (%s)", $file, $changed ? 'changed' : 'unchanged');
+}
+
+sub _info($self, $msg) {
+    $self->{opt}->verbose and $self->_output("[info] $msg\n");
 }
 
 sub _write_file($self, $file, $out) {
