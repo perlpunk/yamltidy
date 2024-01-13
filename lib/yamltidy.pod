@@ -52,6 +52,13 @@ directly.
       b:
         c: d
 
+=item Process a list of files from stdin
+
+    # Tidy all .yaml files that are in git
+    % git ls-files | grep '.yaml$' | yamltidy --batch-stdin --inplace
+    # Only tidy modified files
+    % git ls-files --modified | grep '.yaml$' | yamltidy --batch-stdin --inplace
+
 =item Use a certain configuration file
 
     % yamltidy -c /path/to/yamltidy.yaml file.yaml
@@ -85,14 +92,15 @@ Vim example configuration:
 
 =head2 GLOBAL OPTIONS
 
-    --config-file -c    Config file                               
-    --config-data -d    Configuration as a string                 
-    --inplace -i        Edit file inplace (flag)                  
-    --debug             Debugging output (flag)                   
-    --partial           Input is only a part of a YAML file (flag)
-    --indent            Override indentation spaces from config   
-    --help -h           print usage message and exit (flag)       
-    --version           Print version information (flag)          
+    --config-file -c    Config file                                
+    --config-data -d    Configuration as a string                  
+    --inplace -i        Edit file inplace (flag)                   
+    --debug             Debugging output (flag)                    
+    --partial           Input is only a part of a YAML file (flag) 
+    --indent            Override indentation spaces from config    
+    --batch-stdin       Tidy all file names passed via STDIN (flag)
+    --help -h           print usage message and exit (flag)        
+    --version           Print version information (flag)           
 
 
 =head2 SUBCOMMANDS

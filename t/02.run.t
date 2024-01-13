@@ -38,6 +38,11 @@ my $tidied = <<'EOM';
 some: input file
 that: {should be: tidied}
 EOM
+my $filelist = <<'EOM';
+a/b/1.yaml
+c/d/2.yaml
+EOM
+
 subtest stdin => sub {
     local @ARGV = qw/ - /;
     $ytr = YAML::Tidy::Run->new(stdin => \*DATA);
@@ -86,6 +91,27 @@ subtest file => sub {
     $ytr->run;
     ok exists $write{ $infile }, 'inplace - file written';
     is $write{ $infile }, $tidied, 'inplace - file content correct';
+    clean();
+};
+
+subtest 'batch-stdin' => sub {
+    my @f;
+    local *{"YAML::Tidy::Run::_process_file"} = sub($, $file) { push @f, $file };
+    open my $in, '<', \$filelist;
+    local @ARGV = (qw/ --batch-stdin --inplace /);
+    $ytr = YAML::Tidy::Run->new(stdin => $in);
+    $ytr->run;
+    is $f[0], 'a/b/1.yaml', 'file 1';
+    is $f[1], 'c/d/2.yaml', 'file 2';
+    clean();
+
+    local @ARGV = (qw/ --batch-stdin /);
+    $ytr = YAML::Tidy::Run->new(stdin => $in);
+    eval {
+        $ytr->run;
+    };
+    my $err = $@;
+    like $err, qr/--batch-stdin currently requires --inplace/, '--inplace required';
     clean();
 };
 

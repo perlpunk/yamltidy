@@ -48,6 +48,13 @@ description: |
         b:
           c: d
 
+  =item Process a list of files from stdin
+
+      # Tidy all .yaml files that are in git
+      % git ls-files | grep '.yaml$' | yamltidy --batch-stdin --inplace
+      # Only tidy modified files
+      % git ls-files --modified | grep '.yaml$' | yamltidy --batch-stdin --inplace
+
   =item Use a certain configuration file
 
       % yamltidy -c /path/to/yamltidy.yaml file.yaml
@@ -85,6 +92,7 @@ options:
 - debug --Debugging output
 - partial --Input is only a part of a YAML file
 - indent=i --Override indentation spaces from config
+- batch-stdin --Tidy all file names passed via STDIN
 - help|h --print usage message and exit
 - version --Print version information
 

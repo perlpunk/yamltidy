@@ -21,6 +21,7 @@ my @options = (
     [ 'debug' => 'Debugging output' ],
     [ 'partial' => 'Input is only a part of a YAML file' ],
     [ 'indent=i' => 'Override indentation spaces from config' ],
+    [ 'batch-stdin' => 'Tidy all file names passed via STDIN' ],
     [],
     [ 'help|h', "print usage message and exit", { shortcircuit => 1 } ],
     [ 'version', "Print version information", { shortcircuit => 1 } ],
@@ -68,6 +69,17 @@ EOM
         return;
     }
 
+    if ($opt->batch_stdin) {
+        unless ($opt->inplace) {
+            die "--batch-stdin currently requires --inplace";
+        }
+        my $in = $self->{stdin};
+        while (my $file = <$in>) {
+            chomp $file;
+            $self->_process_file($file);
+        }
+        return;
+    }
     my ($file) = @ARGV;
     unless (defined $file) {
         $self->_output($usage->text);
