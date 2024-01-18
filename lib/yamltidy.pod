@@ -55,9 +55,14 @@ directly.
 =item Process a list of files from stdin
 
     # Tidy all .yaml files that are in git
-    % git ls-files | grep '.yaml$' | yamltidy --batch-stdin --inplace
+    % git ls-files | grep '.yaml$' | yamltidy --inplace --batch -
+    # short options
+    % git ls-files | grep '.yaml$' | yamltidy -i -b -
     # Only tidy modified files
-    % git ls-files --modified | grep '.yaml$' | yamltidy --batch-stdin --inplace
+    % git ls-files --modified | grep '.yaml$' | yamltidy --inplace --batch -
+
+In the future yamltidy can take a directory as an argument and process
+file name patterns from configuration.
 
 =item Use a certain configuration file
 
@@ -92,16 +97,16 @@ Vim example configuration:
 
 =head2 GLOBAL OPTIONS
 
-    --config-file -c    Config file                                
-    --config-data -d    Configuration as a string                  
-    --inplace -i        Edit file inplace (flag)                   
-    --debug             Debugging output (flag)                    
-    --partial           Input is only a part of a YAML file (flag) 
-    --indent            Override indentation spaces from config    
-    --batch-stdin       Tidy all file names passed via STDIN (flag)
-    --verbose           Output information (flag)                  
-    --help -h           print usage message and exit (flag)        
-    --version           Print version information (flag)           
+    --config-file -c    Config file                                                                            
+    --config-data -d    Configuration as a string                                                              
+    --inplace -i        Edit file inplace (flag)                                                               
+    --debug             Debugging output (flag)                                                                
+    --partial           Input is only a part of a YAML file (flag)                                             
+    --indent            Override indentation spaces from config                                                
+    --batch -b          Tidy all files - currently requires parameter "-" for filenames passed via STDIN (flag)
+    --verbose           Output information (flag)                                                              
+    --help -h           print usage message and exit (flag)                                                    
+    --version           Print version information (flag)                                                       
 
 
 =head2 SUBCOMMANDS

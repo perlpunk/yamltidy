@@ -100,24 +100,24 @@ subtest file => sub {
     clean();
 };
 
-subtest 'batch-stdin' => sub {
+subtest 'batch stdin' => sub {
     my @f;
     local *{"YAML::Tidy::Run::_process_file"} = sub($, $file) { push @f, $file };
     open my $in, '<', \$filelist;
-    local @ARGV = (qw/ --batch-stdin --inplace /);
+    local @ARGV = (qw/ -b - --inplace /);
     $ytr = YAML::Tidy::Run->new(stdin => $in);
     $ytr->run;
     is $f[0], 'a/b/1.yaml', 'file 1';
     is $f[1], 'c/d/2.yaml', 'file 2';
     clean();
 
-    local @ARGV = (qw/ --batch-stdin /);
+    local @ARGV = (qw/ --batch - /);
     $ytr = YAML::Tidy::Run->new(stdin => $in);
     eval {
         $ytr->run;
     };
     my $err = $@;
-    like $err, qr/--batch-stdin currently requires --inplace/, '--inplace required';
+    like $err, qr/--batch currently requires --inplace/, '--inplace required';
     clean();
 };
 

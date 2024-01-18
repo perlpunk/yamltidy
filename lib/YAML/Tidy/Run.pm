@@ -21,7 +21,7 @@ my @options = (
     [ 'debug' => 'Debugging output' ],
     [ 'partial' => 'Input is only a part of a YAML file' ],
     [ 'indent=i' => 'Override indentation spaces from config' ],
-    [ 'batch-stdin' => 'Tidy all file names passed via STDIN' ],
+    [ 'batch|b' => 'Tidy all files - currently requires parameter "-" for filenames passed via STDIN' ],
     [ 'verbose|v' => 'Output information' ],
     [],
     [ 'help|h', "print usage message and exit", { shortcircuit => 1 } ],
@@ -70,9 +70,13 @@ EOM
         return;
     }
 
-    if ($opt->batch_stdin) {
+    if ($opt->batch) {
+        my ($path) = @ARGV;
+        unless ($path eq '-') {
+            die "--batch currently requires '-' to receive filenames via STDIN\n";
+        }
         unless ($opt->inplace) {
-            die "--batch-stdin currently requires --inplace";
+            die "--batch currently requires --inplace\n";
         }
         my $in = $self->{stdin};
         while (my $file = <$in>) {

@@ -51,9 +51,14 @@ description: |
   =item Process a list of files from stdin
 
       # Tidy all .yaml files that are in git
-      % git ls-files | grep '.yaml$' | yamltidy --batch-stdin --inplace
+      % git ls-files | grep '.yaml$' | yamltidy --inplace --batch -
+      # short options
+      % git ls-files | grep '.yaml$' | yamltidy -i -b -
       # Only tidy modified files
-      % git ls-files --modified | grep '.yaml$' | yamltidy --batch-stdin --inplace
+      % git ls-files --modified | grep '.yaml$' | yamltidy --inplace --batch -
+
+  In the future yamltidy can take a directory as an argument and process
+  file name patterns from configuration.
 
   =item Use a certain configuration file
 
@@ -92,7 +97,7 @@ options:
 - debug --Debugging output
 - partial --Input is only a part of a YAML file
 - indent=i --Override indentation spaces from config
-- batch-stdin --Tidy all file names passed via STDIN
+- batch|b --Tidy all files - currently requires parameter "-" for filenames passed via STDIN
 - verbose --Output information
 - help|h --print usage message and exit
 - version --Print version information
