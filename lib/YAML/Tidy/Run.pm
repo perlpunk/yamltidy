@@ -24,7 +24,7 @@ my @options = (
     [ 'debug' => 'Debugging output' ],
     [ 'partial' => 'Input is only a part of a YAML file' ],
     [ 'indent=i' => 'Override indentation spaces from config' ],
-    [ 'batch|b' => 'Tidy all files - currently requires parameter "-" for filenames passed via STDIN' ],
+    [ 'batch|b=s' => 'Tidy all files. Needs a directory name or "-" for filenames passed via STDIN' ],
     [ 'verbose|v' => 'Output information' ],
     [],
     [ 'help|h', "print usage message and exit", { shortcircuit => 1 } ],
@@ -73,11 +73,10 @@ EOM
         return;
     }
 
-    if ($opt->batch) {
+    if (my $path = $opt->batch) {
         unless ($opt->inplace) {
             die "--batch currently requires --inplace\n";
         }
-        my ($path) = @ARGV;
         if ($path eq '-') {
             $self->_process_files_stdin;
             return;
@@ -144,7 +143,8 @@ sub _process_file($self, $file) {
 
     my $out = eval { $yt->tidy($yaml) };
     if (my $err = $@) {
-        die "Error processing '$file': $err";
+        $self->_error(sprintf "Processing '%s' failed: %s", $file, $err);
+        return 1;
     }
 
     if ($out ne $yaml) {
@@ -161,6 +161,9 @@ sub _process_file($self, $file) {
 }
 
 sub _info($self, $msg) {
+    $self->{opt}->verbose and $self->_output("[info] $msg\n");
+}
+sub _error($self, $msg) {
     $self->{opt}->verbose and $self->_output("[info] $msg\n");
 }
 

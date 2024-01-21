@@ -79,10 +79,13 @@ The default config:
       default: plain
     adjacency: 0
     files:
-      match:
+      match: # Only globs for filenames allowed, no paths
       - '*.yaml'
       - '*.yml'
       - '.yamltidy'
+      # ignore: # directories which should be ignored
+      # - path1
+      # - path2
 
 An indentation of two spaces is recommended.
 Sequences will by default be zero-indented, because the hyphen `-` counts
