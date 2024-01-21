@@ -83,6 +83,9 @@ sub new($class, %args) {
             $serialize_aliases = 1;
         }
     }
+    my $files = $cfg->{files} || {};
+    my $match = $files->{match} || [];
+    my $ignore = $files->{ignore} || [];
 
     delete @args{qw/ configfile configdata /};
     if (my @unknown = keys %args) {
@@ -97,6 +100,8 @@ sub new($class, %args) {
         adjacency => delete $cfg->{adjacency} // 'keep',
         scalar_style => $scalarstyle,
         serialize_aliases => $serialize_aliases,
+        files_match => $match,
+        files_ignore => $ignore,
     }, $class;
     return $self;
 }
@@ -182,6 +187,11 @@ header: true
 scalar-style:
     default: plain
 adjacency: 0
+files:
+  match:
+  - '*.yaml'
+  - '*.yml'
+  - '.yamltidy'
 EOM
 }
 

@@ -1,0 +1,18 @@
+---
+v: v0.1
+indentation:
+  spaces: 2
+  block-sequence-in-mapping: 0
+trailing-spaces: fix
+header: true
+scalar-style:
+  default: plain
+adjacency: 0
+files:
+  match:
+  - '*.yaml'
+  - .yamltidy
+  ignore:
+  - yts
+  - etc
+  - t

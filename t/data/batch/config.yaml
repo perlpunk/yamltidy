@@ -1,0 +1,8 @@
+---
+v: v0.1
+files:
+  match:
+  - '*.yaml'
+  - '*.yml'
+  ignore:
+  - subdir2

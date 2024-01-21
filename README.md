@@ -78,6 +78,11 @@ The default config:
     scalar-style:
       default: plain
     adjacency: 0
+    files:
+      match:
+      - '*.yaml'
+      - '*.yml'
+      - '.yamltidy'
 
 An indentation of two spaces is recommended.
 Sequences will by default be zero-indented, because the hyphen `-` counts
@@ -108,7 +113,7 @@ spaces will be kept.
 yamltidy tests are using the [YAML Test
 Suite](https://github.com/yaml/yaml-test-suite).
 
-The tests currently make sure that at least the yamltidy output semantically
+The tests currently make sure that the yamltidy output is valid and semantically
 matches the input.
 
 ## Implementation

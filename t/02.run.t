@@ -121,6 +121,24 @@ subtest 'batch stdin' => sub {
     clean();
 };
 
+subtest 'batch' => sub {
+    my @f;
+    local *{"YAML::Tidy::Run::_process_file"} = sub($, $file) { push @f, $file };
+    local @ARGV = (qw/ --inplace -b /, "$Bin/data/batch", '-c', "$Bin/data/batch/config.yaml");
+    $ytr = YAML::Tidy::Run->new;
+    $ytr->run;
+    s{.*t/data/batch/}{} for @f;
+    my @expected = qw(
+        config.yaml
+        subdir1/abc.yaml
+        subdir1/def.yaml
+        subdir1/sub-a/abc.yaml
+        subdir1/sub-a/def.yaml
+        subdir1/sub-a/ghi.yml
+    );
+    is_deeply \@f, \@expected, 'Processed expected files';
+};
+
 done_testing;
 
 __DATA__

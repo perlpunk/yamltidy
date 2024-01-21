@@ -953,6 +953,8 @@ yamltidy is a linter or rather a formatter for YAML files.
 
 It can adjust formatting without removing comments or blank lines.
 
+Command line usage: L<yamltidy>
+
 For examples see L<https://perlpunk.github.io/yamltidy>
 
 The code can be found at L<https://github.com/perlpunk/yamltidy>.
