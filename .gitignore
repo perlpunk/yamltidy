@@ -1,4 +1,4 @@
-^/local/
+/local/
 ^/.build/
 /cover_db/
 /gh-pages/
