@@ -1,5 +1,5 @@
 {
-  "image": "docker.io/perlpunk/yamltidy",
+  "image": "registry.opensuse.org/devel/openqa/containers/opensuse/openqa-client:latest",
   "features": {
   }
 }
