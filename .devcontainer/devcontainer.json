@@ -1,5 +1,5 @@
 {
-  "image": "docker.io/library/debian:latest",
+  "image": "docker.io/opensuse/leap:15.5",
   "features": {
   }
 }
