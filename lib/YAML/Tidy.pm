@@ -759,6 +759,12 @@ sub _fix_indent($self, $node, $fix, $offset) {
             unless ($line =~ tr/ //c) {
                 next;
             }
+            my $offset1 = $offset - 1;
+            # lines with comments should only be indented if the comment starts
+            # at the original offset or after
+            if ($offset > 0 and $line =~ m/^ {0,$offset1}\#/) {
+                next;
+            }
             substr($line, $offset, 0, ' ' x $fix);
         }
     }
