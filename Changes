@@ -1,6 +1,6 @@
 Revision history for Perl module YAML::Tidy
 
-v0.10.1 2025-03-09 22:51:25+01:00
+v0.11.0 2025-03-21 23:28:09+01:00
 
     - Do not add or remove spaces in the middle of comments (issue#13)
 
